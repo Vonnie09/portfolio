@@ -18,9 +18,10 @@ export const profile = {
     "I'm Von, a graduating Computer Science student at Manuel S. Enverga University Foundation, majoring in Software Engineering. I build and deploy responsive web applications with JavaScript, HTML and CSS, with a foundation in Python, Java, Dart and Flutter, and I'm certified in software engineering, testing and machine learning through IBM and HKUST.",
     "Outside of code I'm a hands-on techie. I build PCs, fix motorcycles and a bit of cars, and you'll usually find me on a ride or at a car meet. I also cook, know a little about the construction industry, and I'm always up for learning something new.",
   ],
-  // Put your photo in the /public folder (e.g. public/photo.jpg) and write '/photo.jpg' here.
-  // Leave '' to show your initials instead.
-  photo: '',
+  // Photo printed on the 3D badge. Put it in /public and write e.g. '/photo.jpg'. Leave '' to show initials.
+  photo: '/badge-photo.jpg',
+  // Photo in the About Me section (falls back to the badge photo, then initials)
+  aboutPhoto: '/about-photo.jpg',
   location: 'Lucena City, Quezon, Philippines',
   email: 'von.deasis09@gmail.com',
   // Optional: link to a resume PDF placed in /public, e.g. '/resume.pdf'

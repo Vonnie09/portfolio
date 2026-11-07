@@ -83,8 +83,8 @@ export default function About() {
 
         <div className="about-photo" data-reveal>
           <div className="photo-frame">
-            {profile.photo ? (
-              <img src={profile.photo} alt={profile.name} loading="lazy" />
+            {profile.aboutPhoto || profile.photo ? (
+              <img src={profile.aboutPhoto || profile.photo} alt={profile.name} loading="lazy" />
             ) : (
               <div className="photo-placeholder">
                 <span>{profile.initials || initials(profile.name)}</span>
