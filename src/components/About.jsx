@@ -82,9 +82,9 @@ export default function About() {
         </div>
 
         <div className="about-photo" data-reveal>
-          <div className="photo-frame">
+          <div className={`photo-frame ${profile.aboutPhoto || profile.photo ? 'has-photo' : ''}`}>
             {profile.aboutPhoto || profile.photo ? (
-              <img src={profile.aboutPhoto || profile.photo} alt={profile.name} loading="lazy" />
+              <img src={profile.aboutPhoto || profile.photo} alt={profile.name} loading="lazy" width="675" height="1200" />
             ) : (
               <div className="photo-placeholder">
                 <span>{profile.initials || initials(profile.name)}</span>

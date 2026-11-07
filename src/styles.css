@@ -497,7 +497,7 @@ main {
 .about-photo {
   position: relative;
   justify-self: center;
-  width: min(360px, 100%);
+  width: min(380px, 100%);
 }
 
 .photo-frame {
@@ -514,6 +514,15 @@ main {
   height: 100%;
   object-fit: cover;
   object-position: 50% 42%;
+}
+
+/* With a real photo, the frame takes the photo's own shape so nothing is cropped */
+.photo-frame.has-photo {
+  aspect-ratio: auto;
+}
+
+.photo-frame.has-photo img {
+  height: auto;
 }
 
 .photo-placeholder {
