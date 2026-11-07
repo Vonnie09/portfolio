@@ -909,6 +909,21 @@ main {
   -webkit-backdrop-filter: blur(6px);
 }
 
+.status-btn {
+  cursor: default;
+  color: #fde68a;
+  background: rgba(250, 204, 21, 0.1);
+  border-color: rgba(250, 204, 21, 0.35);
+}
+
+.status-btn i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #facc15;
+  animation: blink 1.6s ease-in-out infinite;
+}
+
 /* beats the ".project-img span" placeholder-title style */
 .project-img .status-pill {
   padding: 4px 10px;

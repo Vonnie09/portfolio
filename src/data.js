@@ -114,13 +114,13 @@ export const projects = [
   },
   {
     title: 'MoneyBudgeting',
-    status: 'Ongoing', // shows a small badge on the image; remove when finished
+    status: 'On-going', // shown on the image and in place of the Live demo button; remove when finished
     label: 'Personal Project · Oct 2026 – Present',
     description:
       'A personal budget planner and expense tracker. Quick-add entries like "12.50 lunch" with auto-categorizing, monthly budgets with pace alerts, a bills calendar, spending insights, multiple wallets and a built-in calculator. Runs fully in the browser with no backend.',
     tags: ['JavaScript', 'HTML5', 'CSS3', 'localStorage', 'Vercel'],
     image: '/projects/moneybudgeting.jpg',
-    live: 'https://money-manager-six-phi.vercel.app',
+    live: '', // hidden while on-going (demo: https://money-manager-six-phi.vercel.app)
     code: 'https://github.com/Vonnie09/money-manager',
   },
 ]

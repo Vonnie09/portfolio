@@ -39,6 +39,11 @@ function ProjectCard({ p, i }) {
           </ul>
         )}
         <div className="card-links">
+          {!p.live && p.status && (
+            <span className="btn btn-small status-btn" aria-label={`Status: ${p.status}`}>
+              <i aria-hidden="true" /> {p.status}
+            </span>
+          )}
           {p.live && (
             <a href={p.live} target="_blank" rel="noreferrer" className="btn btn-small btn-primary">
               Live demo <ArrowUpRight width={14} height={14} />
@@ -49,7 +54,7 @@ function ProjectCard({ p, i }) {
               <GitHub width={14} height={14} /> Code
             </a>
           )}
-          {!p.live && !p.code && <span className="soon">Links coming soon</span>}
+          {!p.live && !p.code && !p.status && <span className="soon">Links coming soon</span>}
         </div>
       </div>
     </article>
