@@ -104,36 +104,48 @@ p {
   inset: 0;
 }
 
+/* soft glows: radial gradients instead of filter: blur() — looks the same, far cheaper on phones */
 .glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
   opacity: 0.5;
 }
 
 .glow-1 {
-  width: 520px;
-  height: 520px;
-  left: -160px;
-  top: 10%;
-  background: #1a3a9c;
+  width: 900px;
+  height: 900px;
+  left: -460px;
+  top: calc(10% - 190px);
+  background: radial-gradient(circle, #1a3a9c 0%, rgba(26, 58, 156, 0.45) 30%, transparent 62%);
 }
 
 .glow-2 {
-  width: 460px;
-  height: 460px;
-  right: -140px;
-  top: 45%;
-  background: #23307a;
+  width: 820px;
+  height: 820px;
+  right: -440px;
+  top: calc(45% - 180px);
+  background: radial-gradient(circle, #23307a 0%, rgba(35, 48, 122, 0.45) 30%, transparent 62%);
 }
 
 .glow-3 {
-  width: 380px;
-  height: 380px;
-  left: 35%;
-  bottom: -160px;
-  background: #142a73;
+  width: 700px;
+  height: 700px;
+  left: calc(35% - 160px);
+  bottom: -320px;
+  background: radial-gradient(circle, #142a73 0%, rgba(20, 42, 115, 0.45) 30%, transparent 62%);
   opacity: 0.4;
+}
+
+/* phones: skip the expensive frosted-glass blur on cards (keeps scrolling smooth) */
+@media (max-width: 900px), (pointer: coarse) {
+  .card,
+  .lightbox {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .card {
+    background: rgba(14, 19, 40, 0.88);
+  }
 }
 
 /* ============ loader ============ */

@@ -8,12 +8,15 @@ export default function Starfield() {
     const canvas = ref.current
     const ctx = canvas.getContext('2d')
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // phones: fewer stars, lower resolution and ~30fps so the 3D badge gets the CPU/GPU
+    const small = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches
+    let last = 0
     let w, h, stars, raf
     let shooting = null
     let nextShot = performance.now() + 2500
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = Math.min(window.devicePixelRatio || 1, small ? 1 : 2)
       w = window.innerWidth
       h = window.innerHeight
       canvas.width = w * dpr
@@ -21,7 +24,7 @@ export default function Starfield() {
       canvas.style.width = w + 'px'
       canvas.style.height = h + 'px'
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const count = Math.round((w * h) / 5200)
+      const count = Math.round((w * h) / (small ? 7000 : 5200))
       stars = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -33,6 +36,11 @@ export default function Starfield() {
     }
 
     const draw = (t) => {
+      if (small && !reduce && t - last < 33) {
+        raf = requestAnimationFrame(draw)
+        return
+      }
+      last = t
       ctx.clearRect(0, 0, w, h)
       for (const s of stars) {
         const alpha = reduce ? s.a : s.a * (0.55 + 0.45 * Math.sin(t * s.s + s.p))
@@ -72,7 +80,15 @@ export default function Starfield() {
       if (!reduce) raf = requestAnimationFrame(draw)
     }
 
+    let lastW = window.innerWidth
+    let lastH = window.innerHeight
     const onResize = () => {
+      // phones fire resize when the address bar slides in/out while scrolling — ignore that
+      const dw = Math.abs(window.innerWidth - lastW)
+      const dh = Math.abs(window.innerHeight - lastH)
+      if (dw === 0 && dh < 160) return
+      lastW = window.innerWidth
+      lastH = window.innerHeight
       resize()
       if (reduce) draw(0)
     }

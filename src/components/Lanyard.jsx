@@ -47,7 +47,7 @@ function useCanvasTexture(width, height, draw) {
 
 /* ---------- physics badge ---------- */
 
-function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX = 0, onHot }) {
+function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX = 0, onHot, grabRef, lite = false, trackHover = false }) {
   const band = useRef()
   const fixed = useRef()
   const j1 = useRef()
@@ -102,7 +102,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   useFrame((state, delta) => {
     // Re-check hover every frame: the card can swing away from a mouse that isn't moving,
     // and the page underneath must become clickable again right away
-    state.events.update?.()
+    if (trackHover) state.events.update?.()
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()
@@ -158,15 +158,26 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
               if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 6 && performance.now() - p.t < 350) onToggle?.()
               press.current = null
             }}
+            onPointerCancel={() => {
+              // the browser took over the touch (e.g. started scrolling) — let go cleanly
+              drag(false)
+              press.current = null
+              if (grabRef) grabRef.current = false
+            }}
             onPointerDown={(e) => {
+              if (grabRef) grabRef.current = true // tells the page not to scroll while dragging on touch screens
               press.current = { x: e.clientX, y: e.clientY, t: performance.now() }
               e.target.setPointerCapture(e.pointerId)
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
             }}
           >
             {/* card body */}
-            <RoundedBox args={[CARD_W, CARD_H, 0.03]} radius={0.06} smoothness={4}>
-              <meshPhysicalMaterial color="#0a0e1c" roughness={0.4} clearcoat={1} clearcoatRoughness={0.2} />
+            <RoundedBox args={[CARD_W, CARD_H, 0.03]} radius={0.06} smoothness={lite ? 2 : 4}>
+              {lite ? (
+                <meshStandardMaterial color="#0a0e1c" roughness={0.45} />
+              ) : (
+                <meshPhysicalMaterial color="#0a0e1c" roughness={0.4} clearcoat={1} clearcoatRoughness={0.2} />
+              )}
             </RoundedBox>
             {/* front print */}
             <mesh position={[0, 0, 0.0155]}>
@@ -220,6 +231,32 @@ export default function Lanyard({ wide = false, flipped, onToggle, anchorRef, ev
   const [visible, setVisible] = useState(true)
   const [anchorFrac, setAnchorFrac] = useState(0)
   const isSmall = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+  // phones/tablets or touch-first devices get a lighter renderer
+  const lite = isSmall || (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
+  const grabRef = useRef(false)
+
+  // On touch screens: if the finger landed on the badge, stop the page from scrolling
+  // (otherwise the browser cancels the drag halfway and it feels laggy)
+  useEffect(() => {
+    const el = wrap.current
+    if (!el) return
+    const block = (e) => {
+      if (grabRef.current && e.cancelable) e.preventDefault()
+    }
+    const release = () => {
+      grabRef.current = false
+    }
+    el.addEventListener('touchstart', block, { passive: false })
+    el.addEventListener('touchmove', block, { passive: false })
+    window.addEventListener('pointerup', release)
+    window.addEventListener('pointercancel', release)
+    return () => {
+      el.removeEventListener('touchstart', block)
+      el.removeEventListener('touchmove', block)
+      window.removeEventListener('pointerup', release)
+      window.removeEventListener('pointercancel', release)
+    }
+  }, [])
 
   // Stop rendering when the badge is scrolled out of view (saves battery on phones)
   useEffect(() => {
@@ -257,16 +294,24 @@ export default function Lanyard({ wide = false, flipped, onToggle, anchorRef, ev
         camera={{ position: [0, 0, isSmall ? 12 : 10], fov: 25 }}
         dpr={[1, isSmall ? 1.5 : 2]}
         frameloop={visible ? 'always' : 'never'}
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true, antialias: !lite, powerPreference: 'high-performance' }}
         // In wide mode, listen on the whole hero so the text underneath stays clickable
         eventSource={wide ? eventSourceRef : undefined}
         eventPrefix={wide ? 'client' : 'offset'}
       >
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-          <AnchoredBand anchorFrac={wide ? anchorFrac : 0} flipped={flipped} onToggle={onToggle} onHot={onHot} />
+          <AnchoredBand
+            anchorFrac={wide ? anchorFrac : 0}
+            flipped={flipped}
+            onToggle={onToggle}
+            onHot={onHot}
+            grabRef={grabRef}
+            lite={lite}
+            trackHover={wide}
+          />
         </Physics>
-        <Environment blur={0.75}>
+        <Environment blur={0.75} frames={1} resolution={lite ? 64 : 256}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="#9fb3ff" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
