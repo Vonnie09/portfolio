@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { achievements, certificateGroups, projects, skillGroups, techStack } from '../data'
 import { ArrowUpRight, Badge, Code, GitHub, Layers, Trophy } from './Icons'
+import Certificates from './Certificates'
 
 const certCount = certificateGroups.reduce((n, g) => n + g.items.length, 0)
 
@@ -81,35 +82,7 @@ export default function Portfolio() {
           </div>
         )}
 
-        {tab === 'certificates' &&
-          certificateGroups
-            .filter((g) => g.items.length)
-            .map((g) => (
-              <div className="cert-group" key={g.group}>
-                <h3 className="group-title">
-                  {g.group} <span>{g.items.length}</span>
-                </h3>
-                <div className="grid-3">
-                  {g.items.map((c) => (
-                    <article className="card list-card" key={c.title}>
-                      <div className="lc-icon">
-                        <Badge />
-                      </div>
-                      <h3>{c.title}</h3>
-                      <p>{c.issuer}</p>
-                      <div className="lc-foot">
-                        <span className="years">{c.year}</span>
-                        {c.url && (
-                          <a href={c.url} target="_blank" rel="noreferrer">
-                            View <ArrowUpRight width={14} height={14} />
-                          </a>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ))}
+        {tab === 'certificates' && <Certificates />}
 
         {tab === 'achievements' && (
           <div className="grid-3">

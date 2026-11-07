@@ -75,21 +75,64 @@ export const projects = [
 ]
 
 // Certificates are shown in groups. Add more groups or items any time.
-// url: link to the certificate (e.g. your Coursera verify link). Leave '' if you don't have one.
+//   cert(title, issuer, date, verifyLink, imageName)
+//   imageName = the file in public/certificates/ without ".jpg" (a small copy must be in public/certificates/thumbs/)
+//   Leave verifyLink or imageName as '' if you don't have one.
+const cert = (title, issuer, year, url = '', img = '') => ({
+  title,
+  issuer,
+  year,
+  url,
+  image: img ? `/certificates/${img}.jpg` : '',
+  thumb: img ? `/certificates/thumbs/${img}.jpg` : '',
+})
+const v = (id) => `https://coursera.org/verify/${id}`
+
 export const certificateGroups = [
   {
-    group: 'Coursera',
+    group: 'Specializations',
     items: [
-      { title: 'Software Testing, Deployment, and Maintenance Strategies', issuer: 'IBM · Coursera', year: 'Jun 2026', url: '' },
-      { title: 'Machine Learning with Python', issuer: 'HKUST · Coursera', year: 'Apr 2026', url: '' },
-      { title: 'Software Engineering Specialization', issuer: 'IBM · Coursera', year: 'Apr 2026', url: '' },
-      { title: 'Software Engineering: Implementation and Testing', issuer: 'HKUST · Coursera', year: 'Mar 2026', url: '' },
-      { title: 'Flutter and Dart: Developing iOS, Android, and Mobile Apps', issuer: 'IBM · Coursera', year: 'May 2025', url: '' },
+      cert('An Introduction to Programming the Internet of Things (IoT) Specialization', 'University of California, Irvine', 'Jun 2026',
+        'https://coursera.org/verify/specialization/TBCU37VAMHYC', 'specialization-an-introduction-to-programming-the-internet-of-things-iot'),
+      cert('Software Engineering Specialization', 'The Hong Kong University of Science and Technology', 'Apr 2026',
+        'https://coursera.org/verify/specialization/UZX7225XTS0C', 'specialization-software-engineering'),
+    ],
+  },
+  {
+    group: 'Courses',
+    items: [
+      cert('Designing User Interfaces and Experiences (UI/UX)', 'IBM', 'Oct 2026', v('QA500UC3XVOK'), 'designing-user-interfaces-and-experiences-ui-ux'),
+      cert('Introduction to User Experience Principles and Processes', 'University of Michigan', 'Oct 2026', v('PF2OYKO9OCT5'), 'introduction-to-user-experience-principles-and-processes'),
+      cert('Software Testing Fundamentals and Methodologies', 'Microsoft', 'Oct 2026', v('4ZEHYT4B09CD'), 'software-testing-fundamentals-and-methodologies'),
+      cert('Automate Tasks and Processes with Jira', 'Coursera Project Network', 'Sep 2026', v('O1AVQSSVBR71'), 'automate-tasks-and-processes-with-jira'),
+      cert('Get Started with Jira', 'Coursera Project Network', 'Sep 2026', v('2ZMAY959NET5'), 'get-started-with-jira'),
+      cert('Introduction to CRM with HubSpot', 'Coursera Project Network', 'Sep 2026', v('7WNU6FFF5YTO'), 'introduction-to-crm-with-hubspot'),
+      cert('Introduction to UX/UI Design', 'IBM', 'Aug 2026', v('F7A2E7VTB0MG'), 'introduction-to-ux-ui-design'),
+      cert('Software Testing, Deployment, and Maintenance Strategies', 'IBM', 'Jun 2026', v('GAAOFCRKWOSS'), 'software-testing-deployment-and-maintenance-strategies'),
+      cert('z/Architecture Assembler Language Part 1: The Basics', 'IBM', 'Jun 2026', v('USKZ9PN732DZ'), 'architecture-assembler-language-part-1-the-basics'),
+      cert('Introduction to the Internet of Things and Embedded Systems', 'University of California, Irvine', 'Jun 2026', v('RVU78I666XY2'), 'introduction-to-the-internet-of-things-and-embedded-systems'),
+      cert('The Arduino Platform and C Programming', 'University of California, Irvine', 'Jun 2026', v('VN0MBPOZP4WQ'), 'the-arduino-platform-and-c-programming'),
+      cert('Interfacing with the Arduino', 'University of California, Irvine', 'Jun 2026', v('DPJQGFW3DGFD'), 'interfacing-with-the-arduino'),
+      cert('The Raspberry Pi Platform and Python Programming for the Raspberry Pi', 'University of California, Irvine', 'Jun 2026', v('DWZEQDC0BSPH'), 'the-raspberry-pi-platform-and-python-programming-for-the-raspberry-pi'),
+      cert('Interfacing with the Raspberry Pi', 'University of California, Irvine', 'Jun 2026', v('5VNYE1W9FRF1'), 'interfacing-with-the-raspberry-pi'),
+      cert('Programming for the Internet of Things Project', 'University of California, Irvine', 'Jun 2026', v('84DW12XPOKLI'), 'programming-for-the-internet-of-things-project'),
+      cert('Machine Learning with Python', 'IBM', 'Apr 2026', v('LVTYW3X53O9I'), 'machine-learning-with-python-build-real-world-ml-models'),
+      cert('Software Engineering: Software Design and Project Management', 'The Hong Kong University of Science and Technology', 'Apr 2026', v('5MZY87IQ7B6Y'), 'software-engineering-software-design-and-project-management'),
+      cert('Software Engineering: Implementation and Testing', 'The Hong Kong University of Science and Technology', 'Mar 2026', v('FUX4QNRZFIHY'), 'software-engineering-implementation-and-testing'),
+      cert('Software Engineering: Modeling Software Systems using UML', 'The Hong Kong University of Science and Technology', 'Feb 2026', v('YSGKOL0FC4VD'), 'software-engineering-modeling-software-systems-using-uml'),
+      cert('Programming Languages I', 'KAIST', 'Feb 2026', v('68VFLKCCHN6P'), 'programming-languages-i'),
+      cert('Create the User Interface with SwiftUI', 'Meta', 'Nov 2025', v('4X8DFWXT3BB7'), 'create-the-user-interface-with-swiftui'),
+      cert('System Validation: Automata and Behavioural Equivalences', 'EIT Digital', 'Nov 2025', v('BLPLABBXLFOX'), 'system-validation-automata-and-behavioural-equivalences'),
+      cert('Data Privacy and Protection Standards', 'Starweaver', 'Oct 2025', v('TUQG10FLIB9X'), 'data-privacy-and-protection-standards'),
+      cert('Ethics of Artificial Intelligence', 'Politecnico di Milano', 'Sep 2025', v('ZOBG36HUTLDA'), 'ethics-of-artificial-intelligence'),
+      cert('Flutter and Dart: Developing iOS, Android, and Mobile Apps', 'IBM', 'May 2025', v('G6U2R60MNDS8'), 'flutter-and-dart-developing-ios-android-and-mobile-apps'),
+      cert('Introduction to Relational Databases (RDBMS)', 'IBM', 'May 2025', v('DAF21WU2342W'), 'introduction-to-relational-databases-rdbms'),
+      cert('Dynamic Programming, Greedy Algorithms', 'University of Colorado Boulder', 'May 2025', v('STAMTS9WE4JE'), 'dynamic-programming-greedy-algorithms'),
     ],
   },
   {
     group: 'Others',
-    items: [{ title: 'Certificate of Participation', issuer: 'TCL', year: '', url: '' }],
+    items: [cert('Certificate of Participation', 'TCL', '')],
   },
 ]
 
