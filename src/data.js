@@ -132,7 +132,10 @@ export const certificateGroups = [
   },
   {
     group: 'Others',
-    items: [cert('Certificate of Participation', 'TCL', '')],
+    items: [
+      cert('TCL Product Training Program — Certificate of Participation', 'TCL · OLED Household Products Trading', 'Oct 2025',
+        '', 'tcl-product-training-program'),
+    ],
   },
 ]
 
