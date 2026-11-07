@@ -603,8 +603,10 @@ main {
 
 .info-mark {
   flex: none;
-  width: 48px;
-  height: 48px;
+  width: 68px;
+  height: 52px;
+  font-size: 14px;
+  letter-spacing: 0.03em;
   border-radius: 12px;
   display: grid;
   place-items: center;

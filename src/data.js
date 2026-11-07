@@ -54,14 +54,22 @@ export const socials = [
   { name: 'TikTok', handle: '@von.de.asis', url: 'https://www.tiktok.com/@von.de.asis' },
 ]
 
+// short = the abbreviation shown in the little icon box
 export const education = [
   {
     school: 'Manuel S. Enverga University Foundation',
+    short: 'MSEUF',
     level: 'BS Computer Science, Major in Software Engineering · College of Computing and Multimedia Studies',
     years: '2023 – 2027 (Expected)',
   },
-  { school: 'Sacred Heart College', level: 'Senior High School · Lucena City', years: '2021 – 2023' },
-  { school: 'Philippine Tong Ho Institute', level: 'Junior High School · Lucena City', years: '2017 – 2021' },
+  { school: 'Sacred Heart College', short: 'SHC', level: 'Senior High School · Lucena City', years: '2021 – 2023' },
+  { school: 'Philippine Tong Ho Institute', short: 'PTHI', level: 'Junior High School · Lucena City', years: '2017 – 2021' },
+  {
+    school: 'Metro Lucena Integrated Learning Center',
+    short: 'MLILC',
+    level: 'Elementary · Lucena City',
+    years: '2011 – 2017',
+  },
 ]
 
 // Internships, freelance work, part-time jobs, org officer roles, volunteer tech work…

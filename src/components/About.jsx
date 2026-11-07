@@ -104,7 +104,7 @@ export default function About() {
             <h4 className="sub-title">Education</h4>
             {education.map((e) => (
               <div className="info-card" key={e.school}>
-                <div className="info-mark">{initials(e.school)}</div>
+                <div className="info-mark">{e.short || initials(e.school)}</div>
                 <div>
                   <strong>{e.school}</strong>
                   <p>{e.level}</p>
@@ -119,7 +119,7 @@ export default function About() {
             <h4 className="sub-title">Experience</h4>
             {experience.map((e) => (
               <div className="info-card" key={e.place + e.role}>
-                <div className="info-mark">{initials(e.place)}</div>
+                <div className="info-mark">{e.short || initials(e.place)}</div>
                 <div>
                   <strong>{e.place}</strong>
                   <p>{e.role}</p>
