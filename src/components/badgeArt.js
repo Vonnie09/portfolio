@@ -3,7 +3,15 @@
 import QRCode from 'qrcode'
 import { badge, profile } from '../data'
 
-export const CARD_PX = { w: 800, h: 1125 }
+// Texture size (drawn at 1.5x for sharp text). Drawing code below uses an 800 x 1125 layout.
+export const CARD_PX = { w: 1200, h: 1688 }
+
+function begin(canvas) {
+  const ctx = canvas.getContext('2d')
+  const s = canvas.width / 800
+  ctx.setTransform(s, 0, 0, s, 0, 0)
+  return { ctx, W: 800, H: 1125 }
+}
 
 const INK = '#141a33' // dark navy ink
 const INK_SOFT = '#2a3358'
@@ -115,14 +123,14 @@ function schoolBlock(ctx, xRight, y) {
   ctx.textAlign = 'left'
   ctx.font = '700 30px "Space Grotesk", sans-serif'
   const t1 = badge.school
-  ctx.font = '400 30px Anton, sans-serif'
+  ctx.font = '400 38px Anton, sans-serif'
   const w1 = ctx.measureText(t1).width
-  ctx.font = '600 15px Inter, sans-serif'
+  ctx.font = '700 19px Inter, sans-serif'
   const w2 = ctx.measureText(badge.schoolSub).width
   const textW = Math.max(w1, w2)
   const x = xRight - textW
   // emblem
-  const ex = x - 34
+  const ex = x - 38
   ctx.fillStyle = INK
   ctx.beginPath()
   ctx.arc(ex, y + 4, 24, 0, Math.PI * 2)
@@ -140,11 +148,10 @@ function schoolBlock(ctx, xRight, y) {
   ctx.stroke()
   // text
   ctx.fillStyle = INK
-  ctx.font = '400 30px Anton, sans-serif'
-  ctx.fillText(t1, x, y + 8)
-  ctx.font = '600 15px Inter, sans-serif'
-  ctx.fillStyle = INK_SOFT
-  ctx.fillText(badge.schoolSub, x, y + 30)
+  ctx.font = '400 38px Anton, sans-serif'
+  ctx.fillText(t1, x, y + 10)
+  ctx.font = '700 19px Inter, sans-serif'
+  ctx.fillText(badge.schoolSub, x, y + 36)
   ctx.restore()
 }
 
@@ -168,9 +175,7 @@ function verticalText(ctx, text, x, y, h, size = 40) {
 /* ---------- front ---------- */
 
 export function drawFront(canvas, cutout) {
-  const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const { ctx, W, H } = begin(canvas)
   paper(ctx, W, H, 11)
   slot(ctx, W)
 
@@ -181,13 +186,13 @@ export function drawFront(canvas, cutout) {
 
   // JUNIOR tag
   ctx.fillStyle = INK
-  rr(ctx, 54, 104, 150, 44, 6)
+  rr(ctx, 50, 100, 176, 54, 6)
   ctx.fill()
   ctx.fillStyle = PAPER
-  ctx.font = '400 28px Anton, sans-serif'
+  ctx.font = '400 36px Anton, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(badge.tag, 129, 127)
+  ctx.fillText(badge.tag, 138, 128)
   ctx.textBaseline = 'alphabetic'
   ctx.textAlign = 'left'
 
@@ -234,10 +239,10 @@ export function drawFront(canvas, cutout) {
     }
   }
   // code-ish text in panel
-  ctx.font = '600 15px "Space Grotesk", monospace'
-  ctx.fillStyle = 'rgba(180,200,255,0.35)'
-  ;['const dev = {', `  name: '${profile.shortName}',`, "  stack: ['js','react'],", '  ride: true,', '}'].forEach((l, i) =>
-    ctx.fillText(l, px + 18, py + 30 + i * 20)
+  ctx.font = '600 21px "Space Grotesk", monospace'
+  ctx.fillStyle = 'rgba(190,210,255,0.45)'
+  ;['const dev = {', `  name: '${profile.shortName}',`, '  ride: true,', '}'].forEach((l, i) =>
+    ctx.fillText(l, px + 20, py + 38 + i * 27)
   )
   ctx.strokeStyle = INK
   ctx.lineWidth = 4
@@ -272,23 +277,22 @@ export function drawFront(canvas, cutout) {
   ctx.strokeStyle = INK
   ctx.lineWidth = 2.5
   ctx.strokeRect(W - 124, py, 64, ph)
-  verticalText(ctx, badge.sideText, W - 92, py, ph, 44)
+  verticalText(ctx, badge.sideText, W - 92, py, ph, 54)
 
   // name tag over the lower-left of the photo
   const name = profile.name.toUpperCase()
-  ctx.font = '400 34px Anton, sans-serif'
-  const nw = Math.min(ctx.measureText(name).width, pw - 40)
-  fitFont(ctx, name, '400 {s}px Anton, sans-serif', pw - 40, 34)
-  const tx = px - 14
-  const ty = py + ph - 92
+  fitFont(ctx, name, '400 {s}px Anton, sans-serif', pw - 10, 46)
+  const nw = ctx.measureText(name).width
+  const tx = px - 18
+  const ty = py + ph - 104
   ctx.fillStyle = PAPER
-  ctx.fillRect(tx, ty, nw + 36, 56)
+  ctx.fillRect(tx, ty, nw + 36, 70)
   ctx.strokeStyle = INK
-  ctx.lineWidth = 3
-  ctx.strokeRect(tx, ty, nw + 36, 56)
+  ctx.lineWidth = 4
+  ctx.strokeRect(tx, ty, nw + 36, 70)
   ctx.fillStyle = INK
   ctx.textBaseline = 'middle'
-  ctx.fillText(name, tx + 18, ty + 30)
+  ctx.fillText(name, tx + 18, ty + 38)
   ctx.textBaseline = 'alphabetic'
 
   cropMarks(ctx, px - 16, py - 16, pw + 32, ph + 32)
@@ -298,31 +302,29 @@ export function drawFront(canvas, cutout) {
   ctx.fillStyle = INK
   ctx.fillRect(34, fy, W - 68, 84)
   ctx.fillStyle = PAPER
-  ctx.font = '400 58px Anton, sans-serif'
+  ctx.font = '400 66px Anton, sans-serif'
   ctx.textBaseline = 'middle'
-  ctx.fillText('PORTFOLIO', 56, fy + 44)
+  ctx.fillText('PORTFOLIO', 54, fy + 45)
   // pill
   ctx.strokeStyle = 'rgba(236,228,208,0.6)'
-  ctx.lineWidth = 2
-  rr(ctx, 392, fy + 28, 92, 30, 15)
+  ctx.lineWidth = 2.5
+  rr(ctx, 380, fy + 27, 82, 32, 16)
   ctx.stroke()
   ctx.fillStyle = ACCENT
   ctx.beginPath()
-  ctx.arc(468, fy + 43, 8, 0, Math.PI * 2)
+  ctx.arc(444, fy + 43, 9, 0, Math.PI * 2)
   ctx.fill()
   ctx.fillStyle = PAPER
-  ctx.font = '500 21px Inter, sans-serif'
-  ctx.fillText(badge.motto[0], 506, fy + 30)
-  ctx.fillText(badge.motto[1], 506, fy + 58)
+  ctx.font = '700 25px Inter, sans-serif'
+  ctx.fillText(badge.motto[0], 482, fy + 28)
+  ctx.fillText(badge.motto[1], 482, fy + 60)
   ctx.textBaseline = 'alphabetic'
 }
 
 /* ---------- back ---------- */
 
 export function drawBack(canvas) {
-  const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
+  const { ctx, W, H } = begin(canvas)
   paper(ctx, W, H, 23)
   slot(ctx, W)
 
@@ -331,12 +333,12 @@ export function drawBack(canvas) {
   ctx.translate(70, 150)
   ctx.rotate(-0.12)
   ctx.fillStyle = INK
-  ctx.fillRect(0, -42, 250, 70)
+  ctx.fillRect(0, -46, 280, 78)
   ctx.fillStyle = PAPER
-  ctx.font = '400 44px Anton, sans-serif'
+  ctx.font = '400 52px Anton, sans-serif'
   ctx.textBaseline = 'middle'
   ctx.fillText('SCAN HERE', 18, -6)
-  hazard(ctx, 0, 34, 250, 20)
+  hazard(ctx, 0, 38, 280, 22)
   ctx.restore()
 
   schoolBlock(ctx, W - 58, 122)
@@ -354,11 +356,11 @@ export function drawBack(canvas) {
 
   ctx.fillStyle = PAPER
   ctx.textAlign = 'center'
-  ctx.font = '400 48px Anton, sans-serif'
-  ctx.fillText(badge.qrTitle, px + pw / 2, py + 76)
-  ctx.font = '600 22px Inter, sans-serif'
+  fitFont(ctx, badge.qrTitle, '400 {s}px Anton, sans-serif', pw - 40, 58)
+  ctx.fillText(badge.qrTitle, px + pw / 2, py + 78)
+  ctx.font = '700 28px Inter, sans-serif'
   const sub = `—  ${badge.qrSub}  —`
-  ctx.fillText(sub, px + pw / 2, py + 112)
+  ctx.fillText(sub, px + pw / 2, py + 120)
   ctx.textAlign = 'left'
 
   // QR code
@@ -368,7 +370,7 @@ export function drawBack(canvas) {
     const size = pw - 120
     const cell = size / n
     const qx = px + 60
-    const qy = py + 150
+    const qy = py + 160
     ctx.fillStyle = PAPER
     ctx.fillRect(qx - 18, qy - 18, size + 36, size + 36)
     ctx.fillStyle = INK
@@ -387,17 +389,17 @@ export function drawBack(canvas) {
   ctx.strokeStyle = INK
   ctx.lineWidth = 2.5
   ctx.strokeRect(W - 128, py - 12, 64, ph + 24)
-  verticalText(ctx, badge.backSideText, W - 96, py - 12, ph + 24, 44)
+  verticalText(ctx, badge.backSideText, W - 96, py - 12, ph + 24, 54)
 
   // name + role
   ctx.fillStyle = INK
   ctx.fillRect(34, H - 190, W - 68, 150)
   ctx.fillStyle = PAPER
   ctx.textAlign = 'center'
-  fitFont(ctx, profile.name.toUpperCase(), '400 {s}px Anton, sans-serif', W - 120, 50)
-  ctx.fillText(profile.name.toUpperCase(), W / 2, H - 112)
-  ctx.font = '500 26px Inter, sans-serif'
-  ctx.fillText(`—  ${profile.roles[0] || ''}  —`, W / 2, H - 66)
+  fitFont(ctx, profile.name.toUpperCase(), '400 {s}px Anton, sans-serif', W - 110, 60)
+  ctx.fillText(profile.name.toUpperCase(), W / 2, H - 108)
+  ctx.font = '700 30px Inter, sans-serif'
+  ctx.fillText(`—  ${profile.roles[0] || ''}  —`, W / 2, H - 60)
   ctx.textAlign = 'left'
 
   // corner swirl ornament

@@ -455,7 +455,7 @@ main {
 
 .badge-hint {
   position: absolute;
-  bottom: 12%;
+  bottom: calc(5% + 46px);
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -1301,6 +1301,35 @@ main {
   50% { transform: scaleY(1); }
 }
 
+/* badge flip button */
+.flip-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: rgba(10, 14, 30, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  font: 600 13px var(--font);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.15s var(--ease);
+}
+
+.flip-btn:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+@media (hover: hover) {
+  .flip-btn:hover {
+    border-color: var(--accent);
+    background: rgba(30, 45, 100, 0.6);
+  }
+}
+
 /* certificates */
 .cert-card {
   display: flex;
@@ -1481,7 +1510,10 @@ main {
     margin-top: -100px;
   }
   .badge-hint {
-    bottom: 4%;
+    bottom: calc(2% + 46px);
+  }
+  .flip-btn {
+    bottom: 2%;
   }
   .about-grid,
   .music,

@@ -72,7 +72,7 @@ export default function Hero({ ready }) {
       </div>
       <div className="hero-badge">
         <Suspense fallback={null}>{ready && <Lanyard />}</Suspense>
-        <p className="badge-hint">Drag the badge ✦</p>
+        <p className="badge-hint">Drag it around · Tap it to flip ✦</p>
       </div>
     </section>
   )

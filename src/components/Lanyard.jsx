@@ -47,7 +47,7 @@ function useCanvasTexture(width, height, draw) {
 
 /* ---------- physics badge ---------- */
 
-function Band({ maxSpeed = 50, minSpeed = 10 }) {
+function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
   const band = useRef()
   const fixed = useRef()
   const j1 = useRef()
@@ -59,6 +59,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const ang = useMemo(() => new THREE.Vector3(), [])
   const rot = useMemo(() => new THREE.Vector3(), [])
   const dir = useMemo(() => new THREE.Vector3(), [])
+  const press = useRef(null) // where/when the pointer went down, to tell a click from a drag
 
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 2, linearDamping: 2 }
   const { width, height } = useThree((s) => s.size)
@@ -79,6 +80,11 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1])
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1])
   useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]])
+
+  // Wake the physics up when flipping so the card starts turning right away
+  useEffect(() => {
+    ;[card, j1, j2, j3].forEach((r) => r.current?.wakeUp())
+  }, [flipped])
 
   useEffect(() => {
     if (!hovered) return
@@ -108,10 +114,13 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       curve.points[2].copy(j1.current.lerped)
       curve.points[3].copy(fixed.current.translation())
       band.current.geometry.setPoints(curve.getPoints(32))
-      // Gently turn the card back to face the screen
+      // Turn the card to face the screen (front), or its back when flipped
       ang.copy(card.current.angvel())
-      rot.copy(card.current.rotation())
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z })
+      const q = card.current.rotation()
+      const yaw = 2 * Math.atan2(q.y, q.w)
+      let err = (flipped ? Math.PI : 0) - yaw
+      err = Math.atan2(Math.sin(err), Math.cos(err)) // shortest way around
+      card.current.setAngvel({ x: ang.x, y: ang.y + (err * 6 - ang.y) * 0.12, z: ang.z })
     }
   })
 
@@ -136,8 +145,13 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             onPointerUp={(e) => {
               e.target.releasePointerCapture(e.pointerId)
               drag(false)
+              // A quick tap without moving = click → flip the card
+              const p = press.current
+              if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 6 && performance.now() - p.t < 350) onToggle?.()
+              press.current = null
             }}
             onPointerDown={(e) => {
+              press.current = { x: e.clientX, y: e.clientY, t: performance.now() }
               e.target.setPointerCapture(e.pointerId)
               drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
             }}
@@ -149,12 +163,13 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             {/* front print */}
             <mesh position={[0, 0, 0.0155]}>
               <planeGeometry args={[CARD_W - 0.04, CARD_H - 0.04]} />
-              <meshPhysicalMaterial map={front} roughness={0.35} clearcoat={1} clearcoatRoughness={0.15} />
+              {/* unlit so the print keeps its true colors and stays readable */}
+              <meshBasicMaterial map={front} toneMapped={false} />
             </mesh>
             {/* back print */}
             <mesh position={[0, 0, -0.0155]} rotation={[0, Math.PI, 0]}>
               <planeGeometry args={[CARD_W - 0.04, CARD_H - 0.04]} />
-              <meshPhysicalMaterial map={back} roughness={0.5} />
+              <meshBasicMaterial map={back} toneMapped={false} />
             </mesh>
             {/* metal clip */}
             <mesh position={[0, CARD_H / 2 + 0.08, 0]}>
@@ -187,6 +202,8 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 export default function Lanyard() {
   const wrap = useRef()
   const [visible, setVisible] = useState(true)
+  const [flipped, setFlipped] = useState(false)
+  const toggle = () => setFlipped((f) => !f)
   const isSmall = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
 
   // Stop rendering when the badge is scrolled out of view (saves battery on phones)
@@ -199,14 +216,14 @@ export default function Lanyard() {
   return (
     <div className="lanyard" ref={wrap}>
       <Canvas
-        camera={{ position: [0, 0, isSmall ? 15 : 13], fov: 25 }}
+        camera={{ position: [0, 0, isSmall ? 12 : 10], fov: 25 }}
         dpr={[1, isSmall ? 1.5 : 2]}
         frameloop={visible ? 'always' : 'never'}
         gl={{ alpha: true, antialias: true }}
       >
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-          <Band />
+          <Band flipped={flipped} onToggle={toggle} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -215,6 +232,9 @@ export default function Lanyard() {
           <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
         </Environment>
       </Canvas>
+      <button type="button" className="flip-btn" onClick={toggle} aria-pressed={flipped}>
+        ↻ {flipped ? 'Show front' : 'Flip badge'}
+      </button>
     </div>
   )
 }
