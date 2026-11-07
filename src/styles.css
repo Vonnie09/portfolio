@@ -1301,6 +1301,29 @@ main {
   50% { transform: scaleY(1); }
 }
 
+/* desktop: the badge canvas spans the full width of the hero so it can be dragged anywhere */
+.hero {
+  position: relative;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.lanyard.lanyard-wide {
+  inset: 0 auto 0 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  z-index: 2;
+  pointer-events: none; /* switched on only while the pointer is on the badge */
+}
+
+.hero-badge .flip-btn,
+.hero-badge .badge-hint {
+  z-index: 3;
+}
+
 /* badge flip button */
 .flip-btn {
   position: absolute;

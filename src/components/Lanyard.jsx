@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { Environment, Lightformer, RoundedBox } from '@react-three/drei'
@@ -47,7 +47,7 @@ function useCanvasTexture(width, height, draw) {
 
 /* ---------- physics badge ---------- */
 
-function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
+function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX = 0, onHot }) {
   const band = useRef()
   const fixed = useRef()
   const j1 = useRef()
@@ -86,6 +86,11 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
     ;[card, j1, j2, j3].forEach((r) => r.current?.wakeUp())
   }, [flipped])
 
+  // Let the canvas catch the mouse only while it's over (or dragging) the card
+  useEffect(() => {
+    onHot?.(hovered || !!dragged)
+  }, [hovered, dragged, onHot])
+
   useEffect(() => {
     if (!hovered) return
     document.body.style.cursor = dragged ? 'grabbing' : 'grab'
@@ -95,6 +100,9 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
   }, [hovered, dragged])
 
   useFrame((state, delta) => {
+    // Re-check hover every frame: the card can swing away from a mouse that isn't moving,
+    // and the page underneath must become clickable again right away
+    state.events.update?.()
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()
@@ -126,7 +134,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
 
   return (
     <>
-      <group position={[0, 4, 0]}>
+      <group position={[anchorX, 4, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
@@ -199,11 +207,18 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle }) {
   )
 }
 
-export default function Lanyard() {
+// Converts the badge column's center into a 3D x position and keeps the band anchored there
+function AnchoredBand({ anchorFrac, ...props }) {
+  const viewport = useThree((st) => st.viewport)
+  const x = Math.round(anchorFrac * viewport.width * 10) / 10
+  // remount when the anchor moves (window resize) so the physics restarts in the right place
+  return <Band key={x} anchorX={x} {...props} />
+}
+
+export default function Lanyard({ wide = false, flipped, onToggle, anchorRef, eventSourceRef }) {
   const wrap = useRef()
   const [visible, setVisible] = useState(true)
-  const [flipped, setFlipped] = useState(false)
-  const toggle = () => setFlipped((f) => !f)
+  const [anchorFrac, setAnchorFrac] = useState(0)
   const isSmall = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
 
   // Stop rendering when the badge is scrolled out of view (saves battery on phones)
@@ -213,17 +228,43 @@ export default function Lanyard() {
     return () => io.disconnect()
   }, [])
 
+  // Wide mode: the canvas spans the whole hero, so hang the badge above the right column
+  useEffect(() => {
+    if (!wide) return
+    const measure = () => {
+      const c = wrap.current?.getBoundingClientRect()
+      const a = anchorRef?.current?.getBoundingClientRect()
+      if (!c || !a || !c.width) return
+      setAnchorFrac((a.left + a.width / 2 - (c.left + c.width / 2)) / c.width)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(wrap.current)
+    if (anchorRef?.current) ro.observe(anchorRef.current)
+    return () => ro.disconnect()
+  }, [wide, anchorRef])
+
+  const onHot = useCallback(
+    (on) => {
+      if (wide && wrap.current) wrap.current.style.pointerEvents = on ? 'auto' : 'none'
+    },
+    [wide]
+  )
+
   return (
-    <div className="lanyard" ref={wrap}>
+    <div className={wide ? 'lanyard lanyard-wide' : 'lanyard'} ref={wrap}>
       <Canvas
         camera={{ position: [0, 0, isSmall ? 12 : 10], fov: 25 }}
         dpr={[1, isSmall ? 1.5 : 2]}
         frameloop={visible ? 'always' : 'never'}
         gl={{ alpha: true, antialias: true }}
+        // In wide mode, listen on the whole hero so the text underneath stays clickable
+        eventSource={wide ? eventSourceRef : undefined}
+        eventPrefix={wide ? 'client' : 'offset'}
       >
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-          <Band flipped={flipped} onToggle={toggle} />
+          <AnchoredBand anchorFrac={wide ? anchorFrac : 0} flipped={flipped} onToggle={onToggle} onHot={onHot} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -232,9 +273,6 @@ export default function Lanyard() {
           <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
         </Environment>
       </Canvas>
-      <button type="button" className="flip-btn" onClick={toggle} aria-pressed={flipped}>
-        ↻ {flipped ? 'Show front' : 'Flip badge'}
-      </button>
     </div>
   )
 }
