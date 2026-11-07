@@ -11,169 +11,15 @@ import {
   useSphericalJoint,
 } from '@react-three/rapier'
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
-import { profile } from '../data'
+import { CARD_PX, drawBack, drawBand, drawFront, loadBadgeAssets } from './badgeArt'
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
 const CARD_W = 1.6
 const CARD_H = 2.25
 
-/* ---------- canvas textures (no image files needed) ---------- */
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y, x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x, y + h, r)
-  ctx.arcTo(x, y + h, x, y, r)
-  ctx.arcTo(x, y, x + w, y, r)
-  ctx.closePath()
-}
-
-function initials(name) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('')
-}
-
-function drawFront(canvas, photo) {
-  const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
-
-  const bg = ctx.createLinearGradient(0, 0, W, H)
-  bg.addColorStop(0, '#0d1530')
-  bg.addColorStop(1, '#060812')
-  ctx.fillStyle = bg
-  ctx.fillRect(0, 0, W, H)
-
-  // grid pattern
-  ctx.strokeStyle = 'rgba(91,140,255,0.08)'
-  ctx.lineWidth = 2
-  for (let x = 0; x < W; x += 48) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke()
-  }
-  for (let y = 0; y < H; y += 48) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke()
-  }
-
-  // slot hole
-  ctx.fillStyle = '#02030a'
-  roundRect(ctx, W / 2 - 70, 34, 140, 26, 13)
-  ctx.fill()
-
-  // header
-  ctx.fillStyle = '#5b8cff'
-  ctx.font = '600 30px "Space Grotesk", sans-serif'
-  ctx.textAlign = 'center'
-  ctx.fillText('ACCESS · ALL AREAS', W / 2, 112)
-
-  ctx.fillStyle = '#f2f4ff'
-  ctx.font = '700 92px "Space Grotesk", sans-serif'
-  ctx.fillText('DEVELOPER', W / 2, 205)
-
-  // photo frame
-  const px = 110, py = 250, pw = W - 220, ph = 470
-  const grad = ctx.createLinearGradient(px, py, px + pw, py + ph)
-  grad.addColorStop(0, '#2a4ed8')
-  grad.addColorStop(1, '#101a3f')
-  ctx.save()
-  roundRect(ctx, px, py, pw, ph, 28)
-  ctx.clip()
-  ctx.fillStyle = grad
-  ctx.fillRect(px, py, pw, ph)
-  if (photo) {
-    const s = Math.max(pw / photo.width, ph / photo.height)
-    const iw = photo.width * s
-    const ih = photo.height * s
-    ctx.drawImage(photo, px + (pw - iw) / 2, py + (ph - ih) / 2, iw, ih)
-  } else {
-    ctx.fillStyle = 'rgba(255,255,255,0.92)'
-    ctx.font = '700 200px "Space Grotesk", sans-serif'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(profile.initials || initials(profile.name) || '◆', W / 2, py + ph / 2 + 8)
-    ctx.textBaseline = 'alphabetic'
-  }
-  ctx.restore()
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)'
-  ctx.lineWidth = 3
-  roundRect(ctx, px, py, pw, ph, 28)
-  ctx.stroke()
-
-  // name + role
-  ctx.fillStyle = '#ffffff'
-  let size = 58
-  ctx.font = `700 ${size}px "Space Grotesk", sans-serif`
-  while (ctx.measureText(profile.name.toUpperCase()).width > W - 120 && size > 30) {
-    size -= 2
-    ctx.font = `700 ${size}px "Space Grotesk", sans-serif`
-  }
-  ctx.fillText(profile.name.toUpperCase(), W / 2, 805)
-
-  ctx.fillStyle = '#9fb3ff'
-  ctx.font = '500 34px Inter, sans-serif'
-  ctx.fillText(profile.roles[0] || '', W / 2, 855)
-
-  // footer strip
-  ctx.fillStyle = '#5b8cff'
-  ctx.fillRect(0, H - 120, W, 120)
-  ctx.fillStyle = '#060812'
-  ctx.font = '700 40px "Space Grotesk", sans-serif'
-  ctx.textAlign = 'left'
-  ctx.fillText('PORTFOLIO', 60, H - 48)
-  ctx.textAlign = 'right'
-  ctx.font = '600 28px Inter, sans-serif'
-  ctx.fillText(`ID ${new Date().getFullYear()}-001`, W - 60, H - 50)
-
-  // barcode
-  ctx.fillStyle = 'rgba(255,255,255,0.75)'
-  let bx = 110
-  const seed = profile.name.length * 7 + 3
-  for (let i = 0; i < 44; i++) {
-    const w = ((i * seed) % 3) + 2
-    ctx.fillRect(bx, 895, w, 60)
-    bx += w + 4
-  }
-}
-
-function drawBack(canvas) {
-  const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
-  ctx.fillStyle = '#080b18'
-  ctx.fillRect(0, 0, W, H)
-  ctx.fillStyle = '#02030a'
-  roundRect(ctx, W / 2 - 70, 34, 140, 26, 13)
-  ctx.fill()
-  ctx.fillStyle = '#5b8cff'
-  ctx.textAlign = 'center'
-  ctx.font = '700 64px "Space Grotesk", sans-serif'
-  ctx.fillText(`</${profile.shortName}>`, W / 2, H / 2 - 20)
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.font = '500 32px Inter, sans-serif'
-  ctx.fillText('drag me around', W / 2, H / 2 + 50)
-}
-
-function drawBand(canvas) {
-  const ctx = canvas.getContext('2d')
-  const W = canvas.width
-  const H = canvas.height
-  ctx.fillStyle = '#1b2f7a'
-  ctx.fillRect(0, 0, W, H)
-  ctx.fillStyle = '#5b8cff'
-  ctx.fillRect(0, 0, W, 8)
-  ctx.fillRect(0, H - 8, W, 8)
-  ctx.fillStyle = '#ffffff'
-  ctx.font = '700 64px "Space Grotesk", sans-serif'
-  ctx.textBaseline = 'middle'
-  ctx.textAlign = 'center'
-  ctx.fillText(`${profile.shortName.toUpperCase()} ✦`, W / 2, H / 2 + 4)
-}
-
-function useCanvasTexture(width, height, draw, deps = []) {
+// Creates a canvas texture and (re)draws it once fonts and the cutout photo are ready
+function useCanvasTexture(width, height, draw) {
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = width
@@ -186,29 +32,15 @@ function useCanvasTexture(width, height, draw, deps = []) {
 
   useEffect(() => {
     let cancelled = false
-    const redraw = (...args) => {
+    loadBadgeAssets().then(({ cutout }) => {
       if (cancelled) return
-      draw(texture.image, ...args)
+      draw(texture.image, cutout)
       texture.needsUpdate = true
-    }
-    // Wait for web fonts so the text is drawn with the right typeface
-    const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve()
-    fontsReady.then(() => {
-      if (profile.photo && draw === drawFront) {
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        img.onload = () => redraw(img)
-        img.onerror = () => redraw(null)
-        img.src = profile.photo
-      } else {
-        redraw(null)
-      }
     })
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [texture, ...deps])
+  }, [texture, draw])
 
   return texture
 }
@@ -238,8 +70,8 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const [dragged, drag] = useState(false)
   const [hovered, hover] = useState(false)
 
-  const front = useCanvasTexture(800, 1125, drawFront)
-  const back = useCanvasTexture(800, 1125, drawBack)
+  const front = useCanvasTexture(CARD_PX.w, CARD_PX.h, drawFront)
+  const back = useCanvasTexture(CARD_PX.w, CARD_PX.h, drawBack)
   const bandTex = useCanvasTexture(512, 128, drawBand)
   bandTex.wrapS = bandTex.wrapT = THREE.RepeatWrapping
 

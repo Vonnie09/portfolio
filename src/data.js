@@ -28,6 +28,23 @@ export const profile = {
   resume: '',
 }
 
+// The swinging 3D ID badge in the hero
+export const badge = {
+  cutout: '/badge-cutout.png', // you, with the background removed (PNG with transparency)
+  tag: 'JUNIOR',
+  title: 'DEVELOPER',
+  school: 'MSEUF',
+  schoolSub: 'CCMS · LUCENA CITY',
+  sideText: 'SOFTWARE ENGINEERING', // vertical text on the front
+  motto: ['Code. Ride.', 'Build. Repeat.'],
+  // Back of the badge
+  qrLink: 'https://www.linkedin.com/in/von-altair-de-asis-b69780447/',
+  qrTitle: 'CONNECT WITH ME',
+  qrSub: 'SOCIALS',
+  backSideText: 'BS COMPUTER SCIENCE',
+  lanyardText: 'Von De Asis',
+}
+
 // Leave a link as '' to hide that icon
 export const socials = [
   { name: 'GitHub', handle: '@Vonnie09', url: 'https://github.com/Vonnie09' },
