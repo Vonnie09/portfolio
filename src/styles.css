@@ -617,6 +617,34 @@ main {
   border: 1px solid rgba(91, 140, 255, 0.25);
 }
 
+.edu-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.edu-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+@media (hover: hover) {
+  .edu-link:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+}
+
 .years {
   font-size: 13px;
   font-weight: 600;
@@ -1055,6 +1083,7 @@ main {
 .sc-instagram .sc-icon { background: linear-gradient(45deg, #f09433, #dc2743 50%, #bc1888); }
 .sc-tiktok .sc-icon { background: #000; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
 .sc-linkedin .sc-icon { background: #0a66c2; }
+.sc-facebook .sc-icon { background: #1877f2; }
 
 .sc-text {
   flex: 1;

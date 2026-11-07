@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { achievements, certificateGroups, education, experience, profile, projects } from '../data'
 
 const certCount = certificateGroups.reduce((n, g) => n + g.items.length, 0)
-import { ArrowRight, Badge, Code, Download, Send, Trophy } from './Icons'
+import { ArrowRight, ArrowUpRight, Badge, Code, Download, Send, Trophy } from './Icons'
 
 function CountUp({ to }) {
   const ref = useRef()
@@ -108,7 +108,15 @@ export default function About() {
                 <div>
                   <strong>{e.school}</strong>
                   <p>{e.level}</p>
-                  <span className="years">{e.years}</span>
+                  <div className="edu-meta">
+                    <span className="years">{e.years}</span>
+                    {e.url && (
+                      <a className="edu-link" href={e.url} target="_blank" rel="noreferrer">
+                        {e.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                        <ArrowUpRight width={12} height={12} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
