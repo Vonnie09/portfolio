@@ -229,6 +229,67 @@ p {
   }
 }
 
+.nav {
+  align-items: center;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: var(--border-strong);
+}
+
+.sound-btn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s, transform 0.15s var(--ease);
+}
+
+.sound-btn:active {
+  transform: scale(0.92);
+}
+
+.sound-btn.on {
+  color: #fff;
+  background: rgba(91, 140, 255, 0.22);
+}
+
+@media (hover: hover) {
+  .sound-btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.sound-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(91, 140, 255, 0.7);
+  animation: soundPulse 2s var(--ease) infinite;
+  pointer-events: none;
+}
+
+@keyframes soundPulse {
+  from {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
 /* ============ layout ============ */
 main {
   max-width: 1180px;
@@ -823,6 +884,46 @@ main {
     radial-gradient(circle at 30% 20%, hsl(var(--h) 90% 60% / 0.45), transparent 60%),
     linear-gradient(140deg, hsl(var(--h) 60% 22%), hsl(var(--h) 50% 8%));
   border: 1px solid var(--border);
+}
+
+.project-img {
+  position: relative;
+}
+
+.status-pill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(8, 12, 28, 0.78);
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* beats the ".project-img span" placeholder-title style */
+.project-img .status-pill {
+  padding: 4px 10px;
+  font: 600 12px var(--font);
+  color: #fff;
+  text-align: left;
+}
+
+.status-pill i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #facc15;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25);
+  animation: blink 1.6s ease-in-out infinite;
 }
 
 .project-img img {
@@ -1606,8 +1707,15 @@ main {
     margin-bottom: 36px;
   }
   .nav a {
-    padding: 7px 12px;
+    padding: 7px 10px;
     font-size: 13px;
+  }
+  .nav-divider {
+    margin: 0 2px;
+  }
+  .sound-btn {
+    width: 32px;
+    height: 32px;
   }
   .grid-3,
   .stats {

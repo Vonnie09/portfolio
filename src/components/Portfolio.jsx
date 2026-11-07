@@ -20,6 +20,11 @@ function ProjectCard({ p, i }) {
   return (
     <article className="card project">
       <div className="project-img" style={{ '--h': hues[i % hues.length] }}>
+        {p.status && (
+          <span className="status-pill">
+            <i aria-hidden="true" /> {p.status}
+          </span>
+        )}
         {p.image ? <img src={p.image} alt={`${p.title} screenshot`} loading="lazy" /> : <span>{p.title}</span>}
       </div>
       <div className="card-body">

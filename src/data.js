@@ -112,6 +112,17 @@ export const projects = [
     live: 'https://pay-bills-theta.vercel.app',
     code: 'https://github.com/Vonnie09/billcheck',
   },
+  {
+    title: 'MoneyBudgeting',
+    status: 'Ongoing', // shows a small badge on the image; remove when finished
+    label: 'Personal Project · Oct 2026 – Present',
+    description:
+      'A personal budget planner and expense tracker. Quick-add entries like "12.50 lunch" with auto-categorizing, monthly budgets with pace alerts, a bills calendar, spending insights, multiple wallets and a built-in calculator. Runs fully in the browser with no backend.',
+    tags: ['JavaScript', 'HTML5', 'CSS3', 'localStorage', 'Vercel'],
+    image: '/projects/moneybudgeting.jpg',
+    live: 'https://money-manager-six-phi.vercel.app',
+    code: 'https://github.com/Vonnie09/money-manager',
+  },
 ]
 
 // Certificates are shown in groups. Add more groups or items any time.

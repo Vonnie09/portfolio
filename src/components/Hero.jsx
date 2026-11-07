@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { profile } from '../data'
+import { playFlip } from '../sound'
 import { ArrowRight, Send } from './Icons'
 import { SocialIcons } from './Social'
 
@@ -60,7 +61,10 @@ export default function Hero({ ready }) {
   const badgeRef = useRef()
   const wide = useWide()
   const [flipped, setFlipped] = useState(false)
-  const toggle = () => setFlipped((f) => !f)
+  const toggle = () => {
+    playFlip() // little whoosh (only when sound is on)
+    setFlipped((f) => !f)
+  }
   const lanyardProps = { flipped, onToggle: toggle, anchorRef: badgeRef, eventSourceRef: heroRef }
 
   return (
