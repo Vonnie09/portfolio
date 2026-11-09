@@ -118,7 +118,7 @@ export const projects = [
   },
   {
     title: 'MoneyBudgeting',
-    label: 'Personal Project · Oct – Nov 2026',
+    label: 'Personal Project · Sept – Nov 2026',
     description:
       'A personal budget planner and expense tracker. Quick-add entries like "12.50 lunch" with auto-categorizing, monthly budgets with pace alerts, a bills calendar, spending insights, multiple wallets and a built-in calculator. Runs fully in the browser with no backend.',
     tags: ['JavaScript', 'HTML5', 'CSS3', 'localStorage', 'Vercel'],
@@ -250,6 +250,8 @@ export const music = {
   title: 'Good music.',
   accent: 'Better code.',
   text: 'Whether I am debugging, building a PC or tuning up a bike, there is always something playing. Here is what keeps me going.',
+  // Picture on the right side of this section. Put the file in public/ and write its name here, e.g. '/music-photo.jpg'
+  photo: '',
 }
 
 // Contact form: create a free form at https://formspree.io and paste its endpoint here,

@@ -30,6 +30,31 @@ export default function App() {
     return () => io.disconnect()
   }, [loaded])
 
+  // Glow that follows the mouse around the border of boxes (desktop only).
+  // One listener for the whole page: it tells the box under the cursor where the mouse is.
+  useEffect(() => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    let raf = 0
+    let last = null
+    const update = () => {
+      raf = 0
+      const el = last.target.closest?.('.card, .stat, .info-card')
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      el.style.setProperty('--mx', `${last.clientX - r.left}px`)
+      el.style.setProperty('--my', `${last.clientY - r.top}px`)
+    }
+    const onMove = (e) => {
+      last = e
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
   return (
     <>
       <Starfield />

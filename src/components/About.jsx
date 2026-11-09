@@ -100,10 +100,10 @@ export default function About() {
 
       <div className={`timeline-grid ${education.length && experience.length ? '' : 'single'}`}>
         {education.length > 0 && (
-          <div data-reveal>
+          <div className="stagger" data-reveal>
             <h4 className="sub-title">Education</h4>
-            {education.map((e) => (
-              <div className="info-card" key={e.school}>
+            {education.map((e, i) => (
+              <div className="info-card" key={e.school} style={{ '--i': i + 1 }}>
                 {e.logo ? (
                   <div className="info-mark logo">
                     <img src={e.logo} alt={`${e.short || e.school} logo`} width={256} height={256} loading="lazy" />
@@ -129,10 +129,10 @@ export default function About() {
           </div>
         )}
         {experience.length > 0 && (
-          <div data-reveal>
+          <div className="stagger" data-reveal>
             <h4 className="sub-title">Experience</h4>
-            {experience.map((e) => (
-              <div className="info-card" key={e.place + e.role}>
+            {experience.map((e, i) => (
+              <div className="info-card" key={e.place + e.role} style={{ '--i': i + 1 }}>
                 <div className="info-mark">{e.short || initials(e.place)}</div>
                 <div>
                   <strong>{e.place}</strong>
@@ -145,9 +145,9 @@ export default function About() {
         )}
       </div>
 
-      <div className="stats" data-reveal style={{ '--cols': stats.length }}>
-        {stats.map(({ icon: Icon, value, label, sub }) => (
-          <div className="stat" key={label}>
+      <div className="stats stagger" data-reveal style={{ '--cols': stats.length }}>
+        {stats.map(({ icon: Icon, value, label, sub }, i) => (
+          <div className="stat" key={label} style={{ '--i': i }}>
             <div className="stat-icon">
               <Icon />
             </div>

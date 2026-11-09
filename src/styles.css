@@ -1409,6 +1409,49 @@ main {
   grid-template-columns: 1.2fr 1fr;
 }
 
+/* no picture yet: the text and the Spotify card use the full width */
+.music-single {
+  grid-template-columns: 1fr;
+}
+
+.music-single .music-copy {
+  max-width: 640px;
+}
+
+/* the Spotify card sits under the text */
+.music-copy .now-playing {
+  margin-top: 26px;
+  max-width: 480px;
+}
+
+.music-photo {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 4 / 5;
+  max-height: 460px;
+  width: 100%;
+  justify-self: end;
+}
+
+.music-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.music-photo.empty {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .now-playing {
   display: flex;
   align-items: center;
@@ -1789,6 +1832,123 @@ main {
   }
 }
 
+/* ============ box animations ============ */
+
+/* 1) Entrance: boxes come in one after another — fade, rise and un-blur.
+      --i (set in the JSX) is each box's place in the line. */
+@keyframes boxIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.96);
+    filter: blur(8px);
+  }
+}
+
+/* Portfolio tabs: plays when the section is first on screen, and again on every tab switch */
+.tab-panel:not(.play) .card {
+  opacity: 0;
+}
+.tab-panel.play .card {
+  animation: boxIn 0.7s var(--ease) backwards;
+  animation-delay: calc(min(var(--i, 0), 12) * 65ms);
+}
+
+/* About: the Education cards and the Projects / Certificates boxes come in one by one
+   (the wrapper itself stays put, its children do the moving) */
+.stagger[data-reveal] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+.stagger[data-reveal]:not(.in) > * {
+  opacity: 0;
+}
+.stagger[data-reveal].in > * {
+  animation: boxIn 0.75s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+
+/* phones: same cascade without the blur (cheaper to draw) */
+@media (max-width: 900px), (pointer: coarse) {
+  @keyframes boxIn {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.97);
+    }
+  }
+}
+
+/* 2) Hover: a light that follows the mouse around the box's border, plus a soft glow inside */
+.card,
+.stat,
+.info-card {
+  position: relative;
+}
+
+.info-card,
+.stat {
+  transition: border-color 0.25s, transform 0.25s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card::before,
+  .stat::before,
+  .info-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    padding: 1px; /* the ring is only this thick */
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      200px circle at var(--mx, -400px) var(--my, -400px),
+      rgba(190, 210, 255, 0.95),
+      rgba(91, 140, 255, 0.45) 35%,
+      transparent 70%
+    );
+    /* cut out the middle so only the border lights up */
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+
+  .card:hover::before,
+  .stat:hover::before,
+  .info-card:hover::before {
+    opacity: 1;
+  }
+
+  .card:hover,
+  .stat:hover,
+  .info-card:hover {
+    background-image: radial-gradient(
+      340px circle at var(--mx, -400px) var(--my, -400px),
+      rgba(91, 140, 255, 0.11),
+      transparent 65%
+    );
+  }
+
+  .stat:hover,
+  .info-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+  }
+
+  /* tech stack: the logo pops a little */
+  .stack-item img {
+    transition: transform 0.35s var(--ease);
+  }
+  .stack-item:hover img {
+    transform: translateY(-2px) scale(1.12);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -1797,6 +1957,7 @@ main {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
   }
   [data-reveal] {

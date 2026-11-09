@@ -47,9 +47,9 @@ function Lightbox({ cert, onClose }) {
   )
 }
 
-function CertCard({ c, onOpen }) {
+function CertCard({ c, onOpen, i }) {
   return (
-    <article className="card cert-card">
+    <article className="card cert-card" style={{ '--i': i }}>
       {c.thumb ? (
         <button className="cert-thumb" onClick={() => onOpen(c)} aria-label={`View ${c.title} certificate`}>
           <img src={c.thumb} alt="" loading="lazy" width="640" height="494" />
@@ -82,7 +82,7 @@ function CertCard({ c, onOpen }) {
   )
 }
 
-function Group({ g, onOpen }) {
+function Group({ g, onOpen, base = 0 }) {
   const [all, setAll] = useState(false)
   const items = all ? g.items : g.items.slice(0, INITIAL)
   const hidden = g.items.length - INITIAL
@@ -92,8 +92,9 @@ function Group({ g, onOpen }) {
         {g.group} <span>{g.items.length}</span>
       </h3>
       <div className="grid-3">
-        {items.map((c) => (
-          <CertCard key={c.title} c={c} onOpen={onOpen} />
+        {items.map((c, i) => (
+          // cards added by "Show more" start their own little cascade
+          <CertCard key={c.title} c={c} onOpen={onOpen} i={i < INITIAL ? base + i : i - INITIAL} />
         ))}
       </div>
       {hidden > 0 && (
@@ -109,13 +110,16 @@ function Group({ g, onOpen }) {
 
 export default function Certificates() {
   const [open, setOpen] = useState(null)
+  let base = 0 // so each group's cards continue the cascade of the group above
   return (
     <>
       {certificateGroups
         .filter((g) => g.items.length)
-        .map((g) => (
-          <Group key={g.group} g={g} onOpen={setOpen} />
-        ))}
+        .map((g) => {
+          const b = base
+          base += Math.min(g.items.length, INITIAL)
+          return <Group key={g.group} g={g} onOpen={setOpen} base={b} />
+        })}
       {open && <Lightbox cert={open} onClose={() => setOpen(null)} />}
     </>
   )

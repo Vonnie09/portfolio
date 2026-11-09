@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { achievements, certificateGroups, projects, skillGroups, techStack } from '../data'
 import { ArrowUpRight, Badge, Code, GitHub, Layers, Trophy } from './Icons'
 import Certificates from './Certificates'
@@ -18,7 +18,7 @@ const darkLogos = ['github', 'vercel', 'nextjs', 'prisma']
 
 function ProjectCard({ p, i }) {
   return (
-    <article className="card project">
+    <article className="card project" style={{ '--i': i }}>
       <div className="project-img" style={{ '--h': hues[i % hues.length] }}>
         {p.status && (
           <span className="status-pill">
@@ -63,13 +63,28 @@ function ProjectCard({ p, i }) {
 
 export default function Portfolio() {
   const [tab, setTab] = useState(tabs[0]?.id)
+  // cards only start their entrance once the section is on screen (then replay on every tab switch)
+  const [seen, setSeen] = useState(false)
+  const tabsRef = useRef()
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return
+        setSeen(true)
+        io.disconnect()
+      },
+      { rootMargin: '0px 0px -10% 0px' }
+    )
+    io.observe(tabsRef.current)
+    return () => io.disconnect()
+  }, [])
 
   return (
     <section id="portfolio" className="section">
       <h2 className="section-title" data-reveal>
         Portfolio
       </h2>
-      <div className="tabs" role="tablist" data-reveal>
+      <div className="tabs" role="tablist" data-reveal ref={tabsRef}>
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -83,7 +98,7 @@ export default function Portfolio() {
         ))}
       </div>
 
-      <div className="tab-panel" key={tab}>
+      <div className={`tab-panel ${seen ? 'play' : ''}`} key={tab}>
         {tab === 'projects' && (
           <div className={projects.length < 3 ? 'grid-2' : 'grid-3'}>
             {projects.map((p, i) => (
@@ -96,8 +111,8 @@ export default function Portfolio() {
 
         {tab === 'achievements' && (
           <div className="grid-3">
-            {achievements.map((a) => (
-              <article className="card list-card" key={a.title}>
+            {achievements.map((a, i) => (
+              <article className="card list-card" key={a.title} style={{ '--i': i }}>
                 <div className="lc-icon">
                   <Trophy />
                 </div>
@@ -114,8 +129,8 @@ export default function Portfolio() {
         {tab === 'stack' && (
           <>
             <div className="stack-grid">
-              {techStack.map((t) => (
-                <div className="card stack-item" key={t.name}>
+              {techStack.map((t, i) => (
+                <div className="card stack-item" key={t.name} style={{ '--i': i }}>
                   {t.icon && (
                     <img
                       src={`https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/${t.icon}/${t.icon}-original.svg`}
@@ -131,8 +146,8 @@ export default function Portfolio() {
             </div>
             {skillGroups.length > 0 && (
               <div className="skill-groups">
-                {skillGroups.map((g) => (
-                  <div className="card skill-group" key={g.group}>
+                {skillGroups.map((g, i) => (
+                  <div className="card skill-group" key={g.group} style={{ '--i': techStack.length + i }}>
                     <h4>{g.group}</h4>
                     <ul className="tags">
                       {g.items.map((s) => (
