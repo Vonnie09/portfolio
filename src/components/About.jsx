@@ -104,7 +104,13 @@ export default function About() {
             <h4 className="sub-title">Education</h4>
             {education.map((e) => (
               <div className="info-card" key={e.school}>
-                <div className="info-mark">{e.short || initials(e.school)}</div>
+                {e.logo ? (
+                  <div className="info-mark logo">
+                    <img src={e.logo} alt={`${e.short || e.school} logo`} width={256} height={256} loading="lazy" />
+                  </div>
+                ) : (
+                  <div className="info-mark">{e.short || initials(e.school)}</div>
+                )}
                 <div>
                   <strong>{e.school}</strong>
                   <p>{e.level}</p>

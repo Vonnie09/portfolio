@@ -59,6 +59,7 @@ export const education = [
   {
     school: 'Manuel S. Enverga University Foundation',
     short: 'MSEUF',
+    logo: '/schools/mseuf.png',
     url: 'https://mseuf.edu.ph/',
     level: 'BS Computer Science, Major in Software Engineering · College of Computing and Multimedia Studies',
     years: '2023 – 2027 (Expected)',
@@ -66,6 +67,7 @@ export const education = [
   {
     school: 'Sacred Heart College',
     short: 'SHC',
+    logo: '/schools/shc.png',
     url: 'https://shc.edu.ph/',
     level: 'Senior High School · Lucena City',
     years: '2021 – 2023',
@@ -73,6 +75,7 @@ export const education = [
   {
     school: 'Philippine Tong Ho Institute',
     short: 'PTHI',
+    logo: '/schools/pthi.png',
     url: 'https://pthi.edu.ph/',
     level: 'Junior High School · Lucena City',
     years: '2017 – 2021',
@@ -80,6 +83,7 @@ export const education = [
   {
     school: 'Metro Lucena Integrated Learning Center',
     short: 'MLILC',
+    logo: '/schools/mlilc.png',
     url: 'https://mlilc.wela.ph/',
     level: 'Elementary · Lucena City',
     years: '2011 – 2017',

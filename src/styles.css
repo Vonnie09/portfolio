@@ -690,6 +690,24 @@ main {
   border: 1px solid rgba(91, 140, 255, 0.25);
 }
 
+/* school logos: every one sits in the same white tile, same size */
+.info-mark.logo {
+  width: 60px;
+  height: 60px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.info-mark.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .edu-meta {
   display: flex;
   flex-wrap: wrap;
