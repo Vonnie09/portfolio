@@ -122,11 +122,11 @@ export const projects = [
     title: 'MoneyBudgeting',
     label: 'Personal Project · Sept – Nov 2026',
     description:
-      'A personal budget planner and expense tracker. Quick-add entries like "12.50 lunch" with auto-categorizing, monthly budgets with pace alerts, a bills calendar, spending insights, multiple wallets and a built-in calculator. Runs fully in the browser with no backend.',
+      'A mobile-first budgeting app to track income, expenses, category budgets, bills with due dates and spending charts. "Money Lists" keep running balances for cash, bank and e-wallet, showing money set aside vs. free to spend. Includes a demo mode with sample data, custom categories and light/dark themes, all saved in the browser.',
     tags: ['JavaScript', 'HTML5', 'CSS3', 'localStorage', 'Vercel'],
     image: '/projects/moneybudgeting.jpg',
-    live: 'https://money-manager-six-phi.vercel.app',
-    code: 'https://github.com/Vonnie09/money-manager',
+    live: 'https://money-budgeting.vercel.app',
+    code: 'https://github.com/Vonnie09/money-budgeting',
   },
 ]
 
