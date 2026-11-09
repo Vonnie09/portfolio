@@ -1,4 +1,5 @@
 import { music, profile } from '../data'
+import Avatar from './Avatar'
 import { ArrowUpRight, Music as MusicIcon } from './Icons'
 
 // Spotify can only embed playlists, albums, tracks and artists — not user profiles
@@ -36,12 +37,10 @@ function NowPlaying() {
 export default function Music() {
   if (!music.link) return null
   const embed = toEmbed(music.link)
-  // While working locally, show where the picture will go; the live site only shows it once it's added
-  const showPhoto = !embed && (music.photo || import.meta.env.DEV)
 
   return (
     <section className="section">
-      <div className={`music ${embed ? '' : 'music-solo'} ${showPhoto ? '' : 'music-single'}`} data-reveal>
+      <div className={`music ${embed ? '' : 'music-solo'}`} data-reveal>
         <div className="music-copy">
           <h3>
             {music.title}
@@ -69,15 +68,21 @@ export default function Music() {
           />
         )}
 
-        {showPhoto && (
-          <div className={`music-photo ${music.photo ? '' : 'empty'}`}>
-            {music.photo ? (
-              <img src={music.photo} alt={`${profile.name} with music`} loading="lazy" />
-            ) : (
-              <span>Your picture goes here (set music.photo in data.js)</span>
-            )}
-          </div>
-        )}
+        {/* right side: a real picture if one is set in data.js, otherwise the cartoon that follows the mouse */}
+        {!embed &&
+          (music.photo ? (
+            <div className="music-photo">
+              <img src={music.photo} alt={profile.name} loading="lazy" />
+            </div>
+          ) : (
+            <div className="music-avatar">
+              <Avatar />
+              <p className="avatar-hint">
+                <span className="on-mouse">Move your mouse around · click me ✦</span>
+                <span className="on-touch">Tap me ✦</span>
+              </p>
+            </div>
+          ))}
       </div>
     </section>
   )

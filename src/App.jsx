@@ -63,9 +63,9 @@ export default function App() {
       <main>
         <Hero ready={loaded} />
         <About />
-        <Music />
         <Portfolio />
         <Contact />
+        <Music />
       </main>
       <Footer />
     </>

@@ -1409,15 +1409,6 @@ main {
   grid-template-columns: 1.2fr 1fr;
 }
 
-/* no picture yet: the text and the Spotify card use the full width */
-.music-single {
-  grid-template-columns: 1fr;
-}
-
-.music-single .music-copy {
-  max-width: 640px;
-}
-
 /* the Spotify card sits under the text */
 .music-copy .now-playing {
   margin-top: 26px;
@@ -1441,16 +1432,131 @@ main {
   display: block;
 }
 
-.music-photo.empty {
+/* the cartoon on the right (below the card on phones) */
+.music-avatar {
+  position: relative;
   display: grid;
-  place-items: center;
-  padding: 24px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  border-style: dashed;
-  background: rgba(255, 255, 255, 0.02);
+  justify-items: center;
+  align-self: stretch;
+  align-content: end;
+  margin: -36px -36px -36px 0; /* reach the card's edges so he "stands" on the bottom */
+  padding-top: 20px;
+  border-radius: 0 24px 24px 0;
+  overflow: hidden;
+  background: radial-gradient(60% 55% at 50% 55%, rgba(91, 140, 255, 0.22), transparent 70%);
 }
+
+.music-avatar .avatar {
+  width: min(100%, 360px);
+}
+
+@media (max-width: 900px) {
+  .music-avatar {
+    margin: 0 -36px -36px;
+    border-radius: 0 0 24px 24px;
+    padding-top: 44px;
+  }
+  .music-avatar .avatar {
+    width: min(80%, 320px);
+  }
+}
+
+@media (max-width: 560px) {
+  .music-avatar {
+    margin: 0 -22px -22px;
+  }
+}
+
+.avatar-hint {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.avatar-hint .on-touch {
+  display: none;
+}
+@media (hover: none), (pointer: coarse) {
+  .avatar-hint .on-mouse {
+    display: none;
+  }
+  .avatar-hint .on-touch {
+    display: inline;
+  }
+}
+
+.avatar svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  overflow: visible;
+}
+
+/* eyes close by squashing them; the closed-eye line fades in */
+.av-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.12s ease;
+}
+.av-lash,
+.av-squint,
+.av-grimace {
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.av-mouth {
+  transition: opacity 0.12s;
+}
+.av-brows path {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.2s var(--ease);
+}
+
+.av-blink .av-eye,
+.av-sleep .av-eye {
+  transform: scaleY(0.06);
+}
+.av-blink .av-lash,
+.av-sleep .av-lash {
+  opacity: 1;
+}
+.av-sleep .av-eye,
+.av-sleep .av-lash {
+  transition-duration: 0.45s;
+}
+
+/* poked: left eye squeezed shut, right eye squinting, teeth showing */
+.av-wink .av-eyeL {
+  transform: scaleY(0.06);
+}
+.av-wink .av-squintL {
+  opacity: 1;
+}
+.av-wink .av-eyeR {
+  transform: scaleY(0.55);
+}
+.av-wink .av-browL {
+  transform: translateY(6px) rotate(8deg);
+}
+.av-wink .av-browR {
+  transform: translateY(-3px) rotate(-4deg);
+}
+.av-wink .av-mouth {
+  opacity: 0;
+}
+.av-wink .av-grimace {
+  opacity: 1;
+}
+
 
 .now-playing {
   display: flex;
