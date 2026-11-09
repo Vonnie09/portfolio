@@ -24,8 +24,10 @@ export const profile = {
   aboutPhoto: '/about-photo.jpg',
   location: 'Lucena City, Quezon, Philippines',
   email: 'von.deasis09@gmail.com',
-  // Optional: link to a resume PDF placed in /public, e.g. '/resume.pdf'
-  resume: '',
+  // Resume PDF in /public (downloaded by the Download buttons)
+  resume: '/Von_De_Asis_Resume.pdf',
+  // Picture of the resume shown in the pop-up (works on every phone, unlike PDFs)
+  resumePreview: '/resume-preview.jpg',
 }
 
 // The swinging 3D ID badge in the hero

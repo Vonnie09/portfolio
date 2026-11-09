@@ -1,7 +1,8 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { profile } from '../data'
 import { playFlip } from '../sound'
-import { ArrowRight, Send } from './Icons'
+import { openResume } from '../resume'
+import { ArrowRight, FileText, Send } from './Icons'
 import { SocialIcons } from './Social'
 
 // The 3D badge is loaded separately so the text shows up right away
@@ -93,6 +94,11 @@ export default function Hero({ ready }) {
           <a href="#contact" className="btn btn-ghost">
             Contact Me <Send width={15} height={15} />
           </a>
+          {profile.resume && (
+            <button type="button" className="btn btn-ghost" onClick={openResume}>
+              <FileText width={16} height={16} /> Resume
+            </button>
+          )}
         </div>
         <div className="find-me">
           <span>Find me</span>

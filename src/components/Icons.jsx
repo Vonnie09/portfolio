@@ -42,6 +42,15 @@ export const VolumeOn = (p) => (
 export const VolumeOff = (p) => (
   <svg {...base} {...p}><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="m22 9-6 6M16 9l6 6" /></svg>
 )
+export const FileText = (p) => (
+  <svg {...base} {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h5" /></svg>
+)
+export const Eye = (p) => (
+  <svg {...base} {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+)
+export const Close = (p) => (
+  <svg {...base} {...p}><path d="M18 6 6 18M6 6l12 12" /></svg>
+)
 export const Download = (p) => (
   <svg {...base} {...p}><path d="M12 3v12M6 11l6 6 6-6M4 21h16" /></svg>
 )

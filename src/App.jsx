@@ -8,6 +8,7 @@ import Music from './components/Music'
 import Portfolio from './components/Portfolio'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import ResumeModal from './components/ResumeModal'
 
 export default function App() {
   const [loaded, setLoaded] = useState(false)
@@ -68,6 +69,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <ResumeModal />
     </>
   )
 }

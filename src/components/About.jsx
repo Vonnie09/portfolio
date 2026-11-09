@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { achievements, certificateGroups, education, experience, profile, projects } from '../data'
 
 const certCount = certificateGroups.reduce((n, g) => n + g.items.length, 0)
-import { ArrowRight, ArrowUpRight, Badge, Code, Download, Send, Trophy } from './Icons'
+import { openResume } from '../resume'
+import { ArrowRight, ArrowUpRight, Badge, Code, Download, Eye, Send, Trophy } from './Icons'
 
 function CountUp({ to }) {
   const ref = useRef()
@@ -70,9 +71,14 @@ export default function About() {
               Contact Me <Send width={15} height={15} />
             </a>
             {profile.resume ? (
-              <a href={profile.resume} className="btn btn-ghost" download>
-                Resume <Download width={15} height={15} />
-              </a>
+              <>
+                <button type="button" className="btn btn-ghost" onClick={openResume}>
+                  <Eye width={16} height={16} /> View Resume
+                </button>
+                <a href={profile.resume} className="btn btn-ghost" download={profile.resume.split('/').pop()}>
+                  <Download width={15} height={15} /> Download Resume
+                </a>
+              </>
             ) : (
               <a href="#portfolio" className="btn btn-ghost">
                 View Projects <ArrowRight width={15} height={15} />
