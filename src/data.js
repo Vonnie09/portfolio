@@ -54,7 +54,15 @@ export const socials = [
   { name: 'Instagram', handle: '@von.deasis', url: 'https://www.instagram.com/von.deasis' },
   { name: 'Facebook', handle: 'Sydefx.gamer', url: 'https://www.facebook.com/Sydefx.gamer/' },
   { name: 'TikTok', handle: '@von.de.asis', url: 'https://www.tiktok.com/@von.de.asis' },
+  { name: 'WhatsApp', handle: '+63 945 706 0671', url: 'https://wa.me/639457060671' },
 ]
+
+// WhatsApp card in Contact: tapping it opens a chat, the QR code can be scanned with a phone
+export const whatsapp = {
+  number: '+63 945 706 0671',
+  link: 'https://wa.me/639457060671',
+  qr: '/whatsapp-qr.jpg',
+}
 
 // short = the abbreviation shown in the little icon box, url = school website (shown after the years)
 export const education = [

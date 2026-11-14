@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { contactForm, profile } from '../data'
-import { Mail, Message, Send, User } from './Icons'
+import { contactForm, profile, whatsapp } from '../data'
+import { Mail, Message, Send, User, WhatsApp } from './Icons'
 import { SocialCards } from './Social'
 
 export default function Contact() {
@@ -89,6 +89,20 @@ export default function Contact() {
               <strong>{profile.email}</strong>
             </span>
           </a>
+          {whatsapp?.link && (
+            <a className="card wa-card" href={whatsapp.link} target="_blank" rel="noreferrer">
+              {whatsapp.qr && (
+                <img src={whatsapp.qr} alt="WhatsApp QR code" width="500" height="500" loading="lazy" />
+              )}
+              <span>
+                <small>
+                  <WhatsApp width={14} height={14} /> Chat on WhatsApp
+                </small>
+                <strong>{whatsapp.number}</strong>
+                <em>{whatsapp.qr ? 'Scan the code with your phone, or tap to open a chat' : 'Tap to open a chat'}</em>
+              </span>
+            </a>
+          )}
         </div>
       </div>
     </section>
