@@ -1111,6 +1111,17 @@ main {
   align-items: start;
 }
 
+/* socials on the left, email + WhatsApp on the right */
+.contact-grid-even {
+  grid-template-columns: 1fr 1fr;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.contact-socials {
+  padding: 24px;
+}
+
 .contact-form {
   padding: 32px;
 }
