@@ -1,12 +1,38 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Component, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { profile } from '../data'
 import { playFlip } from '../sound'
 import { openResume } from '../resume'
 import { ArrowRight, FileText, Send } from './Icons'
+import FlatBadge from './FlatBadge'
 import { SocialIcons } from './Social'
 
 // The 3D badge is loaded separately so the text shows up right away
 const Lanyard = lazy(() => import('./Lanyard'))
+
+// Can this browser draw 3D? (Chrome with graphics acceleration off, some school/work PCs: no)
+function hasWebGL() {
+  try {
+    const c = document.createElement('canvas')
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')))
+  } catch {
+    return false
+  }
+}
+
+// If the 3D badge ever crashes, only the badge is swapped out — the rest of the page keeps working
+class BadgeBoundary extends Component {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  componentDidCatch(error) {
+    console.warn('3D badge failed, showing the flat badge instead:', error)
+    this.props.onError?.()
+  }
+  render() {
+    return this.state.failed ? null : this.props.children
+  }
+}
 
 function useTyping(words, { type = 70, erase = 35, hold = 1600 } = {}) {
   const [text, setText] = useState('')
@@ -67,14 +93,18 @@ export default function Hero({ ready }) {
     setFlipped((f) => !f)
   }
   const lanyardProps = { flipped, onToggle: toggle, anchorRef: badgeRef, eventSourceRef: heroRef }
+  const [gl, setGl] = useState(hasWebGL)
+  const noGL = () => setGl(false)
 
   return (
     <section id="home" ref={heroRef} className={`hero ${ready ? 'hero-in' : ''}`}>
       {/* On desktop the badge can be dragged across the whole hero */}
-      {ready && wide && (
-        <Suspense fallback={null}>
-          <Lanyard wide {...lanyardProps} />
-        </Suspense>
+      {ready && wide && gl && (
+        <BadgeBoundary onError={noGL}>
+          <Suspense fallback={null}>
+            <Lanyard wide {...lanyardProps} />
+          </Suspense>
+        </BadgeBoundary>
       )}
       <div className="hero-copy">
         <h1>
@@ -106,12 +136,15 @@ export default function Hero({ ready }) {
         </div>
       </div>
       <div className="hero-badge" ref={badgeRef}>
-        {ready && !wide && (
-          <Suspense fallback={null}>
-            <Lanyard {...lanyardProps} />
-          </Suspense>
+        {ready && !wide && gl && (
+          <BadgeBoundary onError={noGL}>
+            <Suspense fallback={null}>
+              <Lanyard {...lanyardProps} />
+            </Suspense>
+          </BadgeBoundary>
         )}
-        <p className="badge-hint">Drag it anywhere · Tap it to flip ✦</p>
+        {ready && !gl && <FlatBadge flipped={flipped} onToggle={toggle} />}
+        <p className="badge-hint">{gl ? 'Drag it anywhere · Tap it to flip ✦' : 'Tap it to flip ✦'}</p>
         <button type="button" className="flip-btn" onClick={toggle} aria-pressed={flipped}>
           ↻ {flipped ? 'Show front' : 'Flip badge'}
         </button>

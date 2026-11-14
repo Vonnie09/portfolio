@@ -1696,6 +1696,111 @@ main {
   z-index: 3;
 }
 
+/* flat badge (shown only when the browser can't draw 3D) */
+.flat-badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: calc(5% + 96px); /* room for the hint and the Flip button */
+  animation: fadeIn 0.8s var(--ease) both;
+  transform-origin: 50% 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flat-badge {
+    animation: fadeIn 0.8s var(--ease) both, fbSwing 6s ease-in-out 0.8s infinite;
+  }
+}
+
+@keyframes fbSwing {
+  0%, 100% { transform: rotate(1.6deg); }
+  50% { transform: rotate(-1.6deg); }
+}
+
+.fb-strap {
+  flex: 1 1 auto;
+  min-height: 60px;
+  width: 30px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background: #0d0e12;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.fb-strap span {
+  writing-mode: vertical-rl;
+  align-self: flex-end;
+  padding-bottom: 18px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+.fb-clip {
+  width: 34px;
+  height: 18px;
+  margin-bottom: -6px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #c9ced8, #7b818d);
+  position: relative;
+  z-index: 1;
+}
+
+.fb-card {
+  flex: none;
+  width: min(300px, 62vw);
+  aspect-ratio: 800 / 1125;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  perspective: 1200px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fb-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s var(--ease);
+}
+
+.fb-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.fb-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.fb-back {
+  transform: rotateY(180deg);
+}
+
+@media (max-width: 900px) {
+  .flat-badge {
+    padding-top: 60px;
+    padding-bottom: calc(2% + 90px);
+  }
+  .fb-card {
+    width: min(220px, 52vw);
+  }
+}
+
 /* badge flip button */
 .flip-btn {
   position: absolute;
