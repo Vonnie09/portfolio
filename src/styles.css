@@ -2307,3 +2307,43 @@ main {
     filter: none;
   }
 }
+
+/* ============ light look ============
+   Added to <html> when the browser can't use the graphics card (see src/perf.js).
+   Glass blur, blur fades and constant motion are what make such a browser lag. */
+.lite *,
+.lite *::before,
+.lite *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* glass panels get a solid background instead */
+.lite .nav,
+.lite .card,
+.lite .lightbox {
+  background-color: rgba(12, 17, 36, 0.94);
+}
+
+/* fade in without blurring */
+.lite [data-reveal] {
+  filter: none;
+}
+.lite .tab-panel.play .card,
+.lite .stagger[data-reveal].in > * {
+  animation-name: boxInLite;
+}
+@keyframes boxInLite {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* no endless motion */
+.lite .flat-badge {
+  animation: fadeIn 0.8s var(--ease) both;
+}
+.lite .avatar {
+  animation: none;
+}

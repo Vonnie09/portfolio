@@ -3,21 +3,13 @@ import { profile } from '../data'
 import { playFlip } from '../sound'
 import { openResume } from '../resume'
 import { ArrowRight, FileText, Send } from './Icons'
+import { hasWebGL } from '../perf'
 import FlatBadge from './FlatBadge'
 import { SocialIcons } from './Social'
 
 // The 3D badge is loaded separately so the text shows up right away
 const Lanyard = lazy(() => import('./Lanyard'))
 
-// Can this browser draw 3D? (Chrome with graphics acceleration off, some school/work PCs: no)
-function hasWebGL() {
-  try {
-    const c = document.createElement('canvas')
-    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')))
-  } catch {
-    return false
-  }
-}
 
 // If the 3D badge ever crashes, only the badge is swapped out — the rest of the page keeps working
 class BadgeBoundary extends Component {

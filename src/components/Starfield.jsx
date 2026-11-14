@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { lite } from '../perf'
 
 // Twinkling stars + the occasional shooting star, drawn on one fixed canvas.
 export default function Starfield() {
@@ -7,7 +8,8 @@ export default function Starfield() {
   useEffect(() => {
     const canvas = ref.current
     const ctx = canvas.getContext('2d')
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // no graphics acceleration → draw the stars once and keep them still
+    const reduce = lite || window.matchMedia('(prefers-reduced-motion: reduce)').matches
     // phones: fewer stars, lower resolution and ~30fps so the 3D badge gets the CPU/GPU
     const small = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches
     let last = 0
