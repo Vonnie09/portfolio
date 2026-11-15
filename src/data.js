@@ -113,7 +113,7 @@ export const projects = [
       'A full-stack university carpooling platform with a Priority-Scored Greedy Matching Algorithm (PSGA). It filters riders by route overlap, time window and hard constraints, then ranks them on a weighted score, beating 3 baseline methods at 0.826 Precision@1 on a 500-row labeled dataset.',
     tags: ['Next.js', 'Node.js', 'PostgreSQL', 'Prisma', 'Python', 'Jest', 'Figma'],
     image: '',
-    live: '',
+    live: 'https://rideshare-eu.vercel.app/login',
     code: 'https://github.com/KlRAAA/rideshare-eu',
   },
   {
