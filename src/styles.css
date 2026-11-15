@@ -1538,19 +1538,54 @@ main {
   color: var(--on-accent);
 }
 
+/* lanyard hardware, same as the 3D badge: chrome crimp on the strap → small ring → hook through the card slot */
+.flat-badge {
+  --fb-w: min(300px, 62vw); /* card width */
+  --fb-gap: 16px; /* room for the ring between the crimp and the card */
+}
+
 .fb-clip {
-  width: 34px;
-  height: 18px;
-  margin-bottom: -6px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, #c9ced8, #7b818d);
   position: relative;
   z-index: 1;
+  flex: none; /* keep its shape when the phone layout is tight */
+  width: 32px;
+  height: 17px;
+  margin-bottom: var(--fb-gap);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f2f4f7 0%, #b9bec7 45%, #8d939d 55%, #dfe2e7 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.28), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* small ring under the crimp */
+.fb-clip::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 2px);
+  width: 9px;
+  height: 9px;
+  transform: translateX(-50%);
+  border: 2px solid #cfd3da;
+  border-radius: 50%;
+}
+
+/* hook: from the ring down into the slot printed on the card (45/800 of the card width below its top) */
+.fb-clip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 7px);
+  width: 9px;
+  height: calc(var(--fb-gap) - 7px + var(--fb-w) * 0.05625 + 2px);
+  transform: translateX(-50%);
+  border: 2.5px solid #c9ced8;
+  border-top-color: #eef0f3;
+  border-radius: 999px;
 }
 
 .fb-card {
   flex: none;
-  width: min(300px, 62vw);
+  width: var(--fb-w);
   aspect-ratio: 800 / 1125;
   padding: 0;
   border: 0;
@@ -1593,8 +1628,8 @@ main {
     padding-top: 60px;
     padding-bottom: calc(2% + 90px);
   }
-  .fb-card {
-    width: min(220px, 52vw);
+  .flat-badge {
+    --fb-w: min(220px, 52vw);
   }
 }
 

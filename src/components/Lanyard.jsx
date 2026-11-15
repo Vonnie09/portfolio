@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { Environment, Lightformer, RoundedBox } from '@react-three/drei'
@@ -15,9 +15,41 @@ import { CARD_PX, drawBack, drawBand, drawFront, loadBadgeAssets } from './badge
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
+// meshline bug fix: at the two ends of the strap the shader tests "is the neighbour the same point?"
+// on screen positions that went through slightly different maths, so on any non-square screen the
+// test fails, the end gets a random direction and the strap is pinched into a "V". Compare the
+// original points instead.
+const END_TEST = `if (nextP == currentP) dir = normalize(currentP - prevP);
+    else if (prevP == currentP) dir = normalize(nextP - currentP);`
+const END_FIX = `if (distance(next, position) < 1e-6) dir = normalize(currentP - prevP);
+    else if (distance(previous, position) < 1e-6) dir = normalize(nextP - currentP);`
+function fixStrapEnds(material) {
+  if (!material || material.userData.endsFixed) return
+  if (!material.vertexShader.includes(END_TEST)) {
+    console.warn('Lanyard: meshline shader changed, strap end fix not applied')
+    return
+  }
+  material.vertexShader = material.vertexShader.replace(END_TEST, END_FIX)
+  material.userData.endsFixed = true
+  material.needsUpdate = true
+}
+
 const CARD_W = 1.6
 const CARD_H = 2.25
-const CLIP_Y = CARD_H / 2 + 0.08 // where the strap ends, inside the metal clip
+// Lanyard hardware, in card units (the card's top edge is at CARD_H / 2 = 1.125).
+// The slot printed on the card (badgeArt.js) is centred 45px below the top of the 1125px print.
+const SLOT_Y = CARD_H / 2 - 0.02 - (45 / 1125) * (CARD_H - 0.04)
+const HOOK_R = 0.075 // loop radius; stretched 1.6x tall so it reads as a lobster-style hook
+const HOOK_Y = SLOT_Y + HOOK_R * 1.6 // hook centre: its bottom passes through the slot
+const SWIVEL_Y = HOOK_Y + HOOK_R * 1.6 + 0.03
+const RING_Y = SWIVEL_Y + 0.06
+// Like a real lanyard, the metal crimp belongs to the strap and the card swings on the small ring
+// (the physics joint sits there). Distances below are measured from the ring along the strap.
+const CRIMP_D = 0.09 // centre of the crimp
+const TIP_D = CRIMP_D + 0.035 // where the strap ends, hidden inside the crimp
+const GUIDE_D = CRIMP_D + 0.2 // the strap runs straight out of the crimp up to here, then curves
+const UP = new THREE.Vector3(0, 1, 0)
+const chrome = { color: '#d9dde4', metalness: 1, roughness: 0.18 }
 
 // Creates a canvas texture and (re)draws it once fonts and the cutout photo are ready
 function useCanvasTexture(width, height, draw) {
@@ -55,27 +87,27 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   const j2 = useRef()
   const j3 = useRef()
   const card = useRef()
+  const cardVis = useRef() // the card as drawn on screen (physics is interpolated, so it can trail the body)
 
   const vec = useMemo(() => new THREE.Vector3(), [])
   const ang = useMemo(() => new THREE.Vector3(), [])
   const rot = useMemo(() => new THREE.Vector3(), [])
   const dir = useMemo(() => new THREE.Vector3(), [])
   const tip = useMemo(() => new THREE.Vector3(), [])
-  const quat = useMemo(() => new THREE.Quaternion(), [])
+  const guide = useMemo(() => new THREE.Vector3(), [])
+  const pivot = useMemo(() => new THREE.Vector3(), [])
+  const strapDir = useMemo(() => new THREE.Vector3(), [])
+  const crimp = useRef()
+  const bandMat = useRef()
+  useLayoutEffect(() => fixStrapEnds(bandMat.current), [])
   const press = useRef(null) // where/when the pointer went down, to tell a click from a drag
 
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 2, linearDamping: 2 }
   const { width, height } = useThree((s) => s.size)
   const [curve] = useState(
     () =>
-      // strap end inside the clip → card joint → two rope points → top anchor
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ])
+      // just above the crimp → two rope points → top anchor (the bit inside the crimp is drawn straight)
+      new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
   )
   curve.curveType = 'chordal'
   curve.arcLengthDivisions = 64
@@ -90,7 +122,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1])
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1])
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1])
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]])
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, RING_Y, 0]]) // the card swings on the ring
 
   // Wake the physics up when flipping so the card starts turning right away
   useEffect(() => {
@@ -128,18 +160,26 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
         const d = Math.max(0.1, Math.min(1, r.current.lerped.distanceTo(r.current.translation())))
         r.current.lerped.lerp(r.current.translation(), delta * (minSpeed + d * (maxSpeed - minSpeed)))
       })
-      // The strap's end tapers to a point, so run it down into the metal clip where that point is hidden
-      const c = card.current.translation()
-      const r = card.current.rotation()
-      tip.set(0, CLIP_Y, 0).applyQuaternion(quat.set(r.x, r.y, r.z, r.w)).add(c)
-      curve.points[0].copy(tip)
-      curve.points[1].copy(j3.current.translation())
-      curve.points[2].copy(j2.current.lerped)
-      curve.points[3].copy(j1.current.lerped)
-      curve.points[4].copy(fixed.current.translation())
-      // evenly spaced points so the print on the strap never bunches up near the clip
+      // The strap ends inside the metal crimp on the card. (The card joint j3 sits almost on top of that
+      // point; using both made the curve fold back on itself and pinch the strap into a "V".)
+      // Use the card as it is drawn, not the physics body, so the strap end never lags the crimp
+      cardVis.current.updateWorldMatrix(true, false)
+      cardVis.current.localToWorld(pivot.set(0, RING_Y, 0)) // the ring, as drawn
+      strapDir.copy(j2.current.lerped).sub(pivot).normalize() // which way the strap leaves the ring
+      tip.copy(pivot).addScaledVector(strapDir, TIP_D)
+      guide.copy(pivot).addScaledVector(strapDir, GUIDE_D)
+      // the crimp sits on the strap and turns with it, so the strap always enters it straight
+      crimp.current.position.copy(pivot).addScaledVector(strapDir, CRIMP_D)
+      crimp.current.quaternion.setFromUnitVectors(UP, strapDir)
+      curve.points[0].copy(guide)
+      curve.points[1].copy(j2.current.lerped)
+      curve.points[2].copy(j1.current.lerped)
+      curve.points[3].copy(fixed.current.translation())
       curve.needsUpdate = true
-      band.current.geometry.setPoints(curve.getSpacedPoints(32))
+      // The last bit (inside the crimp up to just above it) is a straight piece lined up with the card.
+      // Bending the curve right down to the crimp made it double back and pinch the strap into a "V".
+      // Points are evenly spaced so the print on the strap never bunches up.
+      band.current.geometry.setPoints([tip.clone(), tip.clone().lerp(guide, 0.5), ...curve.getSpacedPoints(30)])
       // Turn the card to face the screen (front), or its back when flipped
       ang.copy(card.current.angvel())
       const q = card.current.rotation()
@@ -166,6 +206,7 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
         <RigidBody position={[2, 0, 0]} ref={card} {...segmentProps} type={dragged ? 'kinematicPosition' : 'dynamic'}>
           <CuboidCollider args={[CARD_W / 2, CARD_H / 2, 0.01]} />
           <group
+            ref={cardVis}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
@@ -208,17 +249,31 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
               <planeGeometry args={[CARD_W - 0.04, CARD_H - 0.04]} />
               <meshBasicMaterial map={back} toneMapped={false} />
             </mesh>
-            {/* metal clip: the strap runs into it */}
-            <mesh position={[0, CARD_H / 2 + 0.08, 0]}>
-              <boxGeometry args={[0.32, 0.26, 0.08]} />
-              <meshStandardMaterial color="#c9ced8" metalness={1} roughness={0.25} />
+            {/* lanyard hardware on the card: small ring → swivel → hook through the card slot (the crimp is on the strap) */}
+            <mesh position={[0, RING_Y, 0]}>
+              <torusGeometry args={[0.038, 0.011, 10, 24]} />
+              <meshStandardMaterial {...chrome} />
+            </mesh>
+            <mesh position={[0, SWIVEL_Y, 0]}>
+              <cylinderGeometry args={[0.026, 0.03, 0.07, 16]} />
+              <meshStandardMaterial {...chrome} />
+            </mesh>
+            {/* turned partly sideways so it reads as a loop going through the card, front to back */}
+            <mesh position={[0, HOOK_Y, 0]} rotation={[0, Math.PI / 2 - 0.55, 0]} scale={[1, 1.6, 1]}>
+              <torusGeometry args={[HOOK_R, 0.014, 12, 40]} />
+              <meshStandardMaterial {...chrome} />
             </mesh>
           </group>
         </RigidBody>
       </group>
+      {/* metal crimp on the end of the strap (placed every frame in useFrame) */}
+      <RoundedBox ref={crimp} args={[0.27, 0.14, 0.05]} radius={0.018} smoothness={3}>
+        <meshStandardMaterial {...chrome} />
+      </RoundedBox>
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
+          ref={bandMat}
           color="white"
           resolution={[width, height]}
           useMap
@@ -313,7 +368,7 @@ export default function Lanyard({ wide = false, flipped, onToggle, anchorRef, ev
         eventPrefix={wide ? 'client' : 'offset'}
       >
         <ambientLight intensity={Math.PI} />
-        <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+        <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60} updatePriority={-1 /* move the card before the strap follows it */}>
           <AnchoredBand
             anchorFrac={wide ? anchorFrac : 0}
             flipped={flipped}
