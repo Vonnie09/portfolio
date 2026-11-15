@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import Starfield from './components/Starfield'
 import Loader from './components/Loader'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
@@ -58,7 +57,7 @@ export default function App() {
 
   return (
     <>
-      <Starfield />
+      <div className="backdrop" aria-hidden="true" />
       <Loader onDone={() => setLoaded(true)} />
       <Nav />
       <main>

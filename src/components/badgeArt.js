@@ -13,11 +13,11 @@ function begin(canvas) {
   return { ctx, W: 800, H: 1125 }
 }
 
-const INK = '#141a33' // dark navy ink
-const INK_SOFT = '#2a3358'
+const INK = '#1a1512' // warm charcoal ink
+const INK_SOFT = '#3d332b'
 const PAPER = '#ece4d0'
 const PAPER_DARK = '#d9cfb6'
-const ACCENT = '#3b6cff'
+const ACCENT = '#ff7a1a'
 
 /* ---------- helpers ---------- */
 
@@ -223,9 +223,9 @@ export function drawFront(canvas, cutout) {
   const pw = W - 210
   const ph = H - 150 - py
   const pg = ctx.createLinearGradient(px, py, px + pw, py + ph)
-  pg.addColorStop(0, '#2e4fd0')
-  pg.addColorStop(0.55, '#16245e')
-  pg.addColorStop(1, '#0b112b')
+  pg.addColorStop(0, '#ff7a1a')
+  pg.addColorStop(0.55, '#6e2c08')
+  pg.addColorStop(1, '#16100c')
   ctx.fillStyle = pg
   ctx.fillRect(px, py, pw, ph)
   // halftone dots on panel
@@ -240,7 +240,7 @@ export function drawFront(canvas, cutout) {
   }
   // code-ish text in panel
   ctx.font = '600 21px "Space Grotesk", monospace'
-  ctx.fillStyle = 'rgba(190,210,255,0.45)'
+  ctx.fillStyle = 'rgba(255,226,196,0.5)'
   ;['const dev = {', `  name: '${profile.shortName}',`, '  ride: true,', '}'].forEach((l, i) =>
     ctx.fillText(l, px + 20, py + 38 + i * 27)
   )
@@ -418,18 +418,18 @@ export function drawBand(canvas) {
   const ctx = canvas.getContext('2d')
   const W = canvas.width
   const H = canvas.height
-  ctx.fillStyle = '#0c0d12'
+  ctx.fillStyle = '#ff7a1a'
   ctx.fillRect(0, 0, W, H)
-  ctx.fillStyle = 'rgba(255,255,255,0.08)'
+  ctx.fillStyle = 'rgba(0,0,0,0.14)'
   ctx.fillRect(0, 6, W, 2)
   ctx.fillRect(0, H - 8, W, 2)
   // logo circle
-  ctx.strokeStyle = '#ffffff'
+  ctx.strokeStyle = '#1a0d02'
   ctx.lineWidth = 5
   ctx.beginPath()
   ctx.arc(70, H / 2, 30, 0, Math.PI * 2)
   ctx.stroke()
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = '#1a0d02'
   ctx.font = '400 38px Anton, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'

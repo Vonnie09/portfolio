@@ -12,14 +12,13 @@ const tabs = [
   { id: 'stack', label: 'Tech Stack', icon: Layers, show: techStack.length || skillGroups.length },
 ].filter((t) => t.show)
 
-const hues = [222, 262, 198, 286, 168]
 // Logos that are black and need to be flipped to show on a dark background
 const darkLogos = ['github', 'vercel', 'nextjs', 'prisma']
 
 function ProjectCard({ p, i }) {
   return (
     <article className="card project" style={{ '--i': i }}>
-      <div className="project-img" style={{ '--h': hues[i % hues.length] }}>
+      <div className="project-img">
         {p.status && (
           <span className="status-pill">
             <i aria-hidden="true" /> {p.status}
@@ -82,7 +81,7 @@ export default function Portfolio() {
   return (
     <section id="portfolio" className="section">
       <h2 className="section-title" data-reveal>
-        Portfolio
+        <span className="num">02</span> Portfolio
       </h2>
       <div className="tabs" role="tablist" data-reveal ref={tabsRef}>
         {tabs.map(({ id, label, icon: Icon }) => (

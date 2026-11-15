@@ -46,11 +46,11 @@ export default function About() {
   return (
     <section id="about" className="section">
       <h2 className="section-title" data-reveal>
-        About Me
+        <span className="num">01</span> About me
       </h2>
 
-      <div className="about-grid">
-        <div className="about-intro" data-reveal>
+      <div className="bento about-bento">
+        <div className="tile tile-intro about-intro" data-reveal>
           <p className="hi">Hi, I'm</p>
           <h3 className="about-name">
             {first}
@@ -87,7 +87,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="about-photo" data-reveal>
+        <div className="tile tile-photo about-photo" data-reveal style={{ '--d': 1 }}>
           <div className={`photo-frame ${profile.aboutPhoto || profile.photo ? 'has-photo' : ''}`}>
             {profile.aboutPhoto || profile.photo ? (
               <img src={profile.aboutPhoto || profile.photo} alt={profile.name} loading="lazy" width="675" height="1200" />
@@ -98,16 +98,29 @@ export default function About() {
               </div>
             )}
           </div>
-          <div className="photo-tag">
-            <span className="dot" /> {profile.location}
-          </div>
+          {profile.location && (
+            <div className="photo-tag">
+              <span className="dot" /> {profile.location}
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className={`timeline-grid ${education.length && experience.length ? '' : 'single'}`}>
+        {stats.map(({ icon: Icon, value, label, sub }, i) => (
+          <div className="tile stat" key={label} data-reveal style={{ '--d': 2 + i }}>
+            <div className="stat-icon">
+              <Icon />
+            </div>
+            <div className="stat-num">
+              <CountUp to={value} />
+            </div>
+            <strong>{label}</strong>
+            <small>{sub}</small>
+          </div>
+        ))}
+
         {education.length > 0 && (
-          <div className="stagger" data-reveal>
-            <h4 className="sub-title">Education</h4>
+          <div className="tile tile-list stagger" data-reveal>
+            <h4 className="tile-label">Education</h4>
             {education.map((e, i) => (
               <div className="info-card" key={e.school} style={{ '--i': i + 1 }}>
                 {e.logo ? (
@@ -134,9 +147,10 @@ export default function About() {
             ))}
           </div>
         )}
+
         {experience.length > 0 && (
-          <div className="stagger" data-reveal>
-            <h4 className="sub-title">Experience</h4>
+          <div className="tile tile-list stagger" data-reveal>
+            <h4 className="tile-label">Experience</h4>
             {experience.map((e, i) => (
               <div className="info-card" key={e.place + e.role} style={{ '--i': i + 1 }}>
                 <div className="info-mark">{e.short || initials(e.place)}</div>
@@ -149,21 +163,6 @@ export default function About() {
             ))}
           </div>
         )}
-      </div>
-
-      <div className="stats stagger" data-reveal style={{ '--cols': stats.length }}>
-        {stats.map(({ icon: Icon, value, label, sub }, i) => (
-          <div className="stat" key={label} style={{ '--i': i }}>
-            <div className="stat-icon">
-              <Icon />
-            </div>
-            <div className="stat-num">
-              <CountUp to={value} />
-            </div>
-            <strong>{label}</strong>
-            <small>{sub}</small>
-          </div>
-        ))}
       </div>
     </section>
   )

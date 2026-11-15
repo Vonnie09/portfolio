@@ -1,5 +1,4 @@
 import { music, profile } from '../data'
-import Avatar from './Avatar'
 import { ArrowUpRight, Music as MusicIcon } from './Icons'
 
 // Spotify can only embed playlists, albums, tracks and artists — not user profiles
@@ -18,18 +17,22 @@ function Bars() {
   )
 }
 
-function NowPlaying() {
+function NowPlaying(props) {
   return (
-    <a className="now-playing" href={music.link} target="_blank" rel="noreferrer">
-      <div className="np-art">
-        <MusicIcon width={34} height={34} />
+    <a className="tile now-playing" href={music.link} target="_blank" rel="noreferrer" {...props}>
+      <div className="np-top">
+        <div className="np-art">
+          <MusicIcon width={30} height={30} />
+        </div>
+        <Bars />
       </div>
       <div className="np-text">
         <small>On repeat</small>
         <strong>{profile.name.split(' ')[0]}'s Spotify</strong>
-        <span>Playlists · Liked songs</span>
+        <span>
+          Playlists · Liked songs <ArrowUpRight width={14} height={14} />
+        </span>
       </div>
-      <Bars />
     </a>
   )
 }
@@ -39,50 +42,43 @@ export default function Music() {
   const embed = toEmbed(music.link)
 
   return (
-    <section className="section">
-      <div className={`music ${embed ? '' : 'music-solo'}`} data-reveal>
-        <div className="music-copy">
+    <section className="section section-tight">
+      <div className="bento music">
+        <div className="tile music-copy" data-reveal>
           <h3>
             {music.title}
             <br />
             <span className="grad">{music.accent}</span>
           </h3>
           <p className="muted">{music.text}</p>
-          {embed ? (
+          {embed && (
             <a className="btn btn-ghost spotify-btn" href={music.link} target="_blank" rel="noreferrer">
               <MusicIcon width={15} height={15} /> Open in Spotify <ArrowUpRight width={14} height={14} />
             </a>
-          ) : (
-            <NowPlaying />
           )}
         </div>
 
-        {embed && (
-          <iframe
-            title="Spotify player"
-            src={embed}
-            width="100%"
-            height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          />
+        {embed ? (
+          <div className="tile music-embed" data-reveal style={{ '--d': 1 }}>
+            <iframe
+              title="Spotify player"
+              src={embed}
+              width="100%"
+              height="352"
+              loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            />
+          </div>
+        ) : (
+          <NowPlaying data-reveal style={{ '--d': 1 }} />
         )}
 
-        {/* right side: a real picture if one is set in data.js, otherwise the cartoon that follows the mouse */}
-        {!embed &&
-          (music.photo ? (
-            <div className="music-photo">
-              <img src={music.photo} alt={profile.name} loading="lazy" />
-            </div>
-          ) : (
-            <div className="music-avatar">
-              <Avatar />
-              <p className="avatar-hint">
-                <span className="on-mouse">Move your mouse around · click me ✦</span>
-                <span className="on-touch">Tap me ✦</span>
-              </p>
-            </div>
-          ))}
+        {/* optional picture (set music.photo in data.js) */}
+        {music.photo && (
+          <div className="tile music-photo" data-reveal style={{ '--d': 2 }}>
+            <img src={music.photo} alt={profile.name} loading="lazy" />
+          </div>
+        )}
       </div>
     </section>
   )

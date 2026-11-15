@@ -6,7 +6,7 @@ export default function Contact() {
   return (
     <section id="contact" className="section">
       <h2 className="section-title" data-reveal>
-        Contact
+        <span className="num">03</span> Contact
       </h2>
       <div className="contact-grid contact-grid-even">
         <div className="card contact-socials" data-reveal>

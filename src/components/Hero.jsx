@@ -76,6 +76,7 @@ function useWide() {
 
 export default function Hero({ ready }) {
   const role = useTyping(profile.roles)
+  const firstName = profile.name.split(' ')[0]
   const heroRef = useRef()
   const badgeRef = useRef()
   const wide = useWide()
@@ -99,15 +100,14 @@ export default function Hero({ ready }) {
         </BadgeBoundary>
       )}
       <div className="hero-copy">
-        <h1>
-          <span className="grad">Welcome to</span>
-          <br />
-          My Portfolio
-        </h1>
         <p className="role" aria-label={profile.roles.join(', ')}>
+          <span className="slashes" aria-hidden="true">//</span>
           <span aria-hidden="true">{role}</span>
           <i className="caret" aria-hidden="true" />
         </p>
+        <h1>
+          Hi, I'm <span className="grad">{firstName}.</span>
+        </h1>
         <p className="lead">{profile.heroText}</p>
         <div className="actions">
           <a href="#portfolio" className="btn btn-primary">
