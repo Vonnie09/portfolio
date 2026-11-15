@@ -105,18 +105,24 @@ export default function About() {
           )}
         </div>
 
-        {stats.map(({ icon: Icon, value, label, sub }, i) => (
-          <div className="tile stat" key={label} data-reveal style={{ '--d': 2 + i }}>
-            <div className="stat-icon">
-              <Icon />
-            </div>
-            <div className="stat-num">
-              <CountUp to={value} />
-            </div>
-            <strong>{label}</strong>
-            <small>{sub}</small>
+        {stats.length > 0 && (
+          <div className="stat-row" style={{ '--cols': stats.length }}>
+            {stats.map(({ icon: Icon, value, label, sub }, i) => (
+              <div className="tile stat" key={label} data-reveal style={{ '--d': 2 + i }}>
+                <div className="stat-num">
+                  <CountUp to={value} />
+                </div>
+                <div className="stat-icon">
+                  <Icon />
+                </div>
+                <div className="stat-text">
+                  <strong>{label}</strong>
+                  <small>{sub}</small>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
 
         {education.length > 0 && (
           <div className="tile tile-list stagger" data-reveal>
