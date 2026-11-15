@@ -2261,7 +2261,6 @@ main {
 
 /* About: intro (left half) · photo (right half, same height) · short row of numbers · education full width */
 .tile-intro {
-  grid-column: span 2;
   padding: 36px;
 }
 
@@ -2281,29 +2280,42 @@ main {
   margin-bottom: 22px;
 }
 
-.tile-photo {
-  grid-column: span 2;
+/* the About grid: wide intro + the photo at its own shape (never cropped or zoomed) */
+.about-bento {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.tile.tile-photo {
+  grid-column: auto;
+  align-self: start;
   justify-self: stretch;
   width: auto;
-  min-height: 420px;
   padding: 0;
   overflow: hidden;
 }
 
 .tile-photo .photo-frame,
 .tile-photo .photo-frame.has-photo {
-  position: absolute;
-  inset: 0;
   aspect-ratio: auto;
   border: 0;
   border-radius: 0;
+  background: none;
 }
 
 .tile-photo .photo-frame img,
 .tile-photo .photo-frame.has-photo img {
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 30%;
+  width: 100%;
+  height: auto;
+}
+
+.tile-photo .photo-tag {
+  position: static;
+  margin: 0;
+  padding: 12px 14px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
 }
 
 .photo-tag {
@@ -2512,9 +2524,8 @@ main {
   .bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .tile-intro,
-  .tile-photo {
-    grid-column: span 1;
+  .about-bento {
+    grid-template-columns: minmax(0, 1fr) 280px;
   }
   .music.bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2541,11 +2552,8 @@ main {
   .about-photo {
     order: 0;
   }
-  .tile-photo {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    min-height: 0;
-    aspect-ratio: 4 / 5;
+  .about-bento {
+    grid-template-columns: minmax(0, 1fr);
   }
   .tile-intro {
     grid-column: 1 / -1;
