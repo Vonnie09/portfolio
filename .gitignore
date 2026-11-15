@@ -3,5 +3,8 @@ dist
 .DS_Store
 .vercel
 *.log
-.claude
+.claude/*
+!.claude/skills/
 avatar-reference/
+design-shots/
+.design-tmp/
