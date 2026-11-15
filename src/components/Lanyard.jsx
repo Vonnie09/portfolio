@@ -17,6 +17,7 @@ extend({ MeshLineGeometry, MeshLineMaterial })
 
 const CARD_W = 1.6
 const CARD_H = 2.25
+const CLIP_Y = CARD_H / 2 + 0.08 // where the strap ends, inside the metal clip
 
 // Creates a canvas texture and (re)draws it once fonts and the cutout photo are ready
 function useCanvasTexture(width, height, draw) {
@@ -59,15 +60,25 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   const ang = useMemo(() => new THREE.Vector3(), [])
   const rot = useMemo(() => new THREE.Vector3(), [])
   const dir = useMemo(() => new THREE.Vector3(), [])
+  const tip = useMemo(() => new THREE.Vector3(), [])
+  const quat = useMemo(() => new THREE.Quaternion(), [])
   const press = useRef(null) // where/when the pointer went down, to tell a click from a drag
 
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 2, linearDamping: 2 }
   const { width, height } = useThree((s) => s.size)
   const [curve] = useState(
     () =>
-      new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
+      // strap end inside the clip → card joint → two rope points → top anchor
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+      ])
   )
   curve.curveType = 'chordal'
+  curve.arcLengthDivisions = 64
   const [dragged, drag] = useState(false)
   const [hovered, hover] = useState(false)
 
@@ -117,11 +128,18 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
         const d = Math.max(0.1, Math.min(1, r.current.lerped.distanceTo(r.current.translation())))
         r.current.lerped.lerp(r.current.translation(), delta * (minSpeed + d * (maxSpeed - minSpeed)))
       })
-      curve.points[0].copy(j3.current.translation())
-      curve.points[1].copy(j2.current.lerped)
-      curve.points[2].copy(j1.current.lerped)
-      curve.points[3].copy(fixed.current.translation())
-      band.current.geometry.setPoints(curve.getPoints(32))
+      // The strap's end tapers to a point, so run it down into the metal clip where that point is hidden
+      const c = card.current.translation()
+      const r = card.current.rotation()
+      tip.set(0, CLIP_Y, 0).applyQuaternion(quat.set(r.x, r.y, r.z, r.w)).add(c)
+      curve.points[0].copy(tip)
+      curve.points[1].copy(j3.current.translation())
+      curve.points[2].copy(j2.current.lerped)
+      curve.points[3].copy(j1.current.lerped)
+      curve.points[4].copy(fixed.current.translation())
+      // evenly spaced points so the print on the strap never bunches up near the clip
+      curve.needsUpdate = true
+      band.current.geometry.setPoints(curve.getSpacedPoints(32))
       // Turn the card to face the screen (front), or its back when flipped
       ang.copy(card.current.angvel())
       const q = card.current.rotation()
@@ -190,13 +208,9 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
               <planeGeometry args={[CARD_W - 0.04, CARD_H - 0.04]} />
               <meshBasicMaterial map={back} toneMapped={false} />
             </mesh>
-            {/* metal clip */}
+            {/* metal clip: the strap runs into it */}
             <mesh position={[0, CARD_H / 2 + 0.08, 0]}>
-              <boxGeometry args={[0.28, 0.16, 0.06]} />
-              <meshStandardMaterial color="#c9ced8" metalness={1} roughness={0.25} />
-            </mesh>
-            <mesh position={[0, CARD_H / 2 + 0.22, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.08, 0.022, 12, 24]} />
+              <boxGeometry args={[0.32, 0.26, 0.08]} />
               <meshStandardMaterial color="#c9ced8" metalness={1} roughness={0.25} />
             </mesh>
           </group>
@@ -206,7 +220,6 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
         <meshLineGeometry />
         <meshLineMaterial
           color="white"
-          depthTest={false}
           resolution={[width, height]}
           useMap
           map={bandTex}
