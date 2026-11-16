@@ -165,6 +165,7 @@ export const certificateGroups = [
   {
     group: 'Courses',
     items: [
+      cert('Cloud Computing Fundamentals', 'University of Pittsburgh', 'Nov 2026', v('MHK1FEPKBSDJ'), 'cloud-computing-fundamentals'),
       cert('Designing User Interfaces and Experiences (UI/UX)', 'IBM', 'Oct 2026', v('QA500UC3XVOK'), 'designing-user-interfaces-and-experiences-ui-ux'),
       cert('Introduction to User Experience Principles and Processes', 'University of Michigan', 'Oct 2026', v('PF2OYKO9OCT5'), 'introduction-to-user-experience-principles-and-processes'),
       cert('Software Testing Fundamentals and Methodologies', 'Microsoft', 'Oct 2026', v('4ZEHYT4B09CD'), 'software-testing-fundamentals-and-methodologies'),
