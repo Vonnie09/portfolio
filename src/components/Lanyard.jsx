@@ -97,6 +97,8 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   const guide = useMemo(() => new THREE.Vector3(), [])
   const pivot = useMemo(() => new THREE.Vector3(), [])
   const strapDir = useMemo(() => new THREE.Vector3(), [])
+  // strap points, made once and refilled every frame: tip, midpoint, then 31 points along the curve
+  const strapPts = useMemo(() => Array.from({ length: 33 }, () => new THREE.Vector3()), [])
   const crimp = useRef()
   const bandMat = useRef()
   useLayoutEffect(() => fixStrapEnds(bandMat.current), [])
@@ -179,7 +181,10 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
       // The last bit (inside the crimp up to just above it) is a straight piece lined up with the card.
       // Bending the curve right down to the crimp made it double back and pinch the strap into a "V".
       // Points are evenly spaced so the print on the strap never bunches up.
-      band.current.geometry.setPoints([tip.clone(), tip.clone().lerp(guide, 0.5), ...curve.getSpacedPoints(30)])
+      strapPts[0].copy(tip)
+      strapPts[1].copy(tip).lerp(guide, 0.5)
+      for (let i = 0; i <= 30; i++) curve.getPointAt(i / 30, strapPts[i + 2])
+      band.current.geometry.setPoints(strapPts)
       // Turn the card to face the screen (front), or its back when flipped
       ang.copy(card.current.angvel())
       const q = card.current.rotation()
