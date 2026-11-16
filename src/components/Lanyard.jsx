@@ -49,6 +49,7 @@ const CRIMP_D = 0.09 // centre of the crimp
 const TIP_D = CRIMP_D + 0.035 // where the strap ends, hidden inside the crimp
 const GUIDE_D = CRIMP_D + 0.2 // the strap runs straight out of the crimp up to here, then curves
 const UP = new THREE.Vector3(0, 1, 0)
+const TWIST_LEN = 0.55 // share of the strap (from the card up) that twists when the card turns
 const chrome = { color: '#d9dde4', metalness: 1, roughness: 0.18 }
 
 // Creates a canvas texture and (re)draws it once fonts and the cutout photo are ready
@@ -99,6 +100,12 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
   const strapDir = useMemo(() => new THREE.Vector3(), [])
   // strap points, made once and refilled every frame: tip, midpoint, then 31 points along the curve
   const strapPts = useMemo(() => Array.from({ length: 33 }, () => new THREE.Vector3()), [])
+  // Twist: the bottom of the strap turns with the card (by its yaw, the turn around the vertical axis)
+  // and the twist fades out going up. The strap is drawn as a flat ribbon facing the screen, so a
+  // turned piece is shown by making it narrower (|cos|), like a real strap seen edge-on.
+  const twistYaw = useRef(0)
+  const strapWidth = useMemo(() => (p) => Math.max(0.12, Math.abs(Math.cos(twistYaw.current * Math.max(0, 1 - p / TWIST_LEN)))), [])
+  const yawQ = useMemo(() => new THREE.Quaternion(), [])
   const crimp = useRef()
   const bandMat = useRef()
   useLayoutEffect(() => fixStrapEnds(bandMat.current), [])
@@ -170,9 +177,14 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
       strapDir.copy(j2.current.lerped).sub(pivot).normalize() // which way the strap leaves the ring
       tip.copy(pivot).addScaledVector(strapDir, TIP_D)
       guide.copy(pivot).addScaledVector(strapDir, GUIDE_D)
-      // the crimp sits on the strap and turns with it, so the strap always enters it straight
+      // The card's yaw, between -π and π. Width uses cos, which is the same for +π and -π,
+      // so the twist never jumps when the angle wraps around.
+      const q = card.current.rotation()
+      const yaw = 2 * Math.atan2(q.y, q.w)
+      twistYaw.current = Math.atan2(Math.sin(yaw), Math.cos(yaw))
+      // the crimp sits on the strap: it points along the strap and turns with the card when it flips
       crimp.current.position.copy(pivot).addScaledVector(strapDir, CRIMP_D)
-      crimp.current.quaternion.setFromUnitVectors(UP, strapDir)
+      crimp.current.quaternion.setFromUnitVectors(UP, strapDir).multiply(yawQ.setFromAxisAngle(UP, twistYaw.current))
       curve.points[0].copy(guide)
       curve.points[1].copy(j2.current.lerped)
       curve.points[2].copy(j1.current.lerped)
@@ -184,11 +196,9 @@ function Band({ maxSpeed = 50, minSpeed = 10, flipped = false, onToggle, anchorX
       strapPts[0].copy(tip)
       strapPts[1].copy(tip).lerp(guide, 0.5)
       for (let i = 0; i <= 30; i++) curve.getPointAt(i / 30, strapPts[i + 2])
-      band.current.geometry.setPoints(strapPts)
+      band.current.geometry.setPoints(strapPts, strapWidth)
       // Turn the card to face the screen (front), or its back when flipped
       ang.copy(card.current.angvel())
-      const q = card.current.rotation()
-      const yaw = 2 * Math.atan2(q.y, q.w)
       let err = (flipped ? Math.PI : 0) - yaw
       err = Math.atan2(Math.sin(err), Math.cos(err)) // shortest way around
       card.current.setAngvel({ x: ang.x, y: ang.y + (err * 6 - ang.y) * 0.12, z: ang.z })
